@@ -1,0 +1,80 @@
+﻿
+#pragma once
+
+#define RC_PRODUCT		"crvskkserv"
+#define RC_VERSION		"1.0.0"
+#define RC_VERSION_D	1,0,0,0
+#define RC_TITLE		"crvskkserv (ver. 1.0.0)"
+#define RC_AUTHOR		"Nathan Corvus Solis"
+
+#define APP_TITLE		L"crvskkserv"
+#define APP_VERSION		L"1.0.0"
+#define RES_VER RC_PRODUCT " (" RC_VERSION ") "
+
+#define REQ_END '0'
+#define REQ_KEY '1'
+#define REQ_VER '2'
+#define REQ_ADR '3'
+
+#define REP_OK '1'
+#define REP_NG '4'
+
+#define INIVAL_SKKSERV		L"skkserv"
+#define INIVAL_GOOGLECGIAPI	L"googlecgiapi"
+#define INIVAL_SVR_SEP		L'/'
+
+#define KEYSIZE		0x100
+#define BUFSIZE		0x4000
+#define RBUFSIZE	0x800
+
+#define WM_TASKBARICON_0	(WM_USER + 1)
+
+typedef struct {
+	BOOL live;
+	SOCKET sock;
+} SERVINFO;
+
+typedef std::pair<std::string, long> PAIR;
+typedef std::map<std::string, long> MAP;
+
+typedef std::vector<long> POS;
+typedef struct {
+	std::wstring path;
+	POS pos;
+	SOCKET sock;
+} DICINFO;
+typedef std::vector<DICINFO> VDICINFO;
+
+extern LPCSTR EntriesAri;
+extern LPCSTR EntriesNasi;
+extern LPCWSTR RB;
+extern LPCWSTR WB;
+
+extern LPCWSTR title;
+extern LPCSTR resver;
+extern WCHAR serv_port[];
+extern BOOL serv_loopback;
+extern WCHAR googlecgiapi_url_prefix[];
+extern WCHAR googlecgiapi_url_suffix[];
+extern VDICINFO vdicinfo;
+
+extern LPCWSTR inival_def_timeout;
+
+// server
+int make_serv_sock(SERVINFO *servinfo, int servinfonum);
+void disconnect(SOCKET &sock);
+void comm(SOCKET &sock);
+void comm_thread(void *p);
+void listen_thread(void *p);
+
+// search_dictionary
+void init_search_dictionary(DICINFO &dicinfo);
+void search_dictionary(DICINFO &dicinfo, LPCSTR key, std::string &s);
+
+// search_skkserv
+void search_skkserv(DICINFO &dicinfo, LPCSTR key, std::string &s);
+void connect_skkserv(DICINFO &dicinfo);
+BOOL get_skkserv_version(SOCKET &sock);
+
+// search_google_cgiapi
+void search_google_cgiapi(DICINFO &dicinfo, LPCSTR key, std::string &s);
