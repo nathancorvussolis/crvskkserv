@@ -30,6 +30,8 @@ LPCWSTR inival_def_port = L"1178";
 LPCWSTR inival_def_timeout = L"1000";
 LPCWSTR inival_def_googlecgiapi_filter = L"[^A-Za-z0-9]+[a-z]";
 LPCWSTR inival_def_googlecgiapi_annotation = L"G";
+LPCWSTR inival_googlecgiapi_encoding_euc = L"euc";
+LPCWSTR inival_googlecgiapi_encoding_utf8 = L"utf-8";
 LPCSTR EntriesAri = ";; okuri-ari entries.\n";
 LPCSTR EntriesNasi = ";; okuri-nasi entries.\n";
 LPCWSTR RB = L"rb";
@@ -293,6 +295,7 @@ INT_PTR CALLBACK DlgProcGoogleCGIAPI(HWND hDlg, UINT message, WPARAM wParam, LPA
 	LVITEMW item;
 	int	index, count;
 	WCHAR path[MAX_PATH];
+	WCHAR encoding[8];
 	WCHAR filter[256];
 	WCHAR comment[256];
 	WCHAR timeout[8];
@@ -306,17 +309,23 @@ INT_PTR CALLBACK DlgProcGoogleCGIAPI(HWND hDlg, UINT message, WPARAM wParam, LPA
 		SetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_FILTER, inival_def_googlecgiapi_filter);
 		SetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_ANNOTATION, inival_def_googlecgiapi_annotation);
 		SetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_TIMEOUT, inival_def_timeout);
+		CheckDlgButton(hDlg, IDC_RADIO_GOOGLECGIAPI_EUC, BST_CHECKED);
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:
 		switch(LOWORD(wParam))
 		{
 		case IDOK:
+			wcscpy_s(encoding, inival_googlecgiapi_encoding_euc);
+			if(IsDlgButtonChecked(hDlg, IDC_RADIO_GOOGLECGIAPI_UTF8) == BST_CHECKED)
+			{
+				wcscpy_s(encoding, inival_googlecgiapi_encoding_utf8);
+			}
 			GetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_FILTER, filter, _countof(filter));
 			GetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_ANNOTATION, comment, _countof(comment));
 			GetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_TIMEOUT, timeout, _countof(timeout));
-			_snwprintf_s(path, _TRUNCATE, L"%s%c%s%c%s%c%s%c", INIVAL_GOOGLECGIAPI,
-				INIVAL_SVR_SEP, filter, INIVAL_SVR_SEP, comment, INIVAL_SVR_SEP, timeout, INIVAL_SVR_SEP);
+			_snwprintf_s(path, _TRUNCATE, L"%s%c%s%c%s%c%s%c%s%c", INIVAL_GOOGLECGIAPI, INIVAL_SVR_SEP,
+				filter, INIVAL_SVR_SEP, comment, INIVAL_SVR_SEP, timeout, INIVAL_SVR_SEP, encoding, INIVAL_SVR_SEP);
 
 			hWndListView = GetDlgItem(hPDlg, IDC_LIST_SKK_DIC);
 			index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);

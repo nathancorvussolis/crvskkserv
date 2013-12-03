@@ -1,5 +1,4 @@
 ﻿
-#include "stdafx.h"
 #include "crvskkserv.h"
 
 #define USEIDXFILE	0

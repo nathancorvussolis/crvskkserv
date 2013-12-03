@@ -1,5 +1,4 @@
 ﻿
-#include "stdafx.h"
 #include "crvskkserv.h"
 
 void search_skkserv(DICINFO &dicinfo, LPCSTR key, std::string &s)

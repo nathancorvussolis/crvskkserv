@@ -1,5 +1,4 @@
 ﻿
-#include "stdafx.h"
 #include "crvskkserv.h"
 
 int make_serv_sock(SERVINFO *servinfo, int servinfonum)

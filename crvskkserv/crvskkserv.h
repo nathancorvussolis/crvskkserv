@@ -2,13 +2,13 @@
 #pragma once
 
 #define RC_PRODUCT		"crvskkserv"
-#define RC_VERSION		"1.0.0"
-#define RC_VERSION_D	1,0,0,0
-#define RC_TITLE		"crvskkserv (ver. 1.0.0)"
+#define RC_VERSION		"1.1.0"
+#define RC_VERSION_D	1,1,0,0
+#define RC_TITLE		"crvskkserv (ver. 1.1.0)"
 #define RC_AUTHOR		"Nathan Corvus Solis"
 
 #define APP_TITLE		L"crvskkserv"
-#define APP_VERSION		L"1.0.0"
+#define APP_VERSION		L"1.1.0"
 #define RES_VER RC_PRODUCT " (" RC_VERSION ") "
 
 #define REQ_END '0'
@@ -59,6 +59,8 @@ extern WCHAR googlecgiapi_url_suffix[];
 extern VDICINFO vdicinfo;
 
 extern LPCWSTR inival_def_timeout;
+extern LPCWSTR inival_googlecgiapi_encoding_euc;
+extern LPCWSTR inival_googlecgiapi_encoding_utf8;
 
 // server
 int make_serv_sock(SERVINFO *servinfo, int servinfonum);
