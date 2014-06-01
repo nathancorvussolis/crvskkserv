@@ -2,13 +2,13 @@
 #pragma once
 
 #define RC_PRODUCT		"crvskkserv"
-#define RC_VERSION		"1.1.0"
-#define RC_VERSION_D	1,1,0,0
-#define RC_TITLE		"crvskkserv (ver. 1.1.0)"
-#define RC_AUTHOR		"Nathan Corvus Solis"
+#define RC_VERSION		"1.2.0"
+#define RC_VERSION_D	1,2,0,0
+#define RC_TITLE		"crvskkserv (ver. 1.2.0)"
+#define RC_AUTHOR		"nathancorvussolis"
 
 #define APP_TITLE		L"crvskkserv"
-#define APP_VERSION		L"1.1.0"
+#define APP_VERSION		L"1.2.0"
 #define RES_VER RC_PRODUCT " (" RC_VERSION ") "
 
 #define REQ_END '0'

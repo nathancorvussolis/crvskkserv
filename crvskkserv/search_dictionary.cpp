@@ -14,7 +14,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 	char *p;
 #if USEIDXFILE
 	FILE *fpidx;
-	wchar_t idxpath[260];
+	wchar_t idxpath[MAX_PATH];
 
 	_snwprintf_s(idxpath, _TRUNCATE, L"%s.idx", dicinfo.path.c_str());
 

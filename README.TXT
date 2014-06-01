@@ -1,7 +1,7 @@
 ﻿
 -------------------------------------------------------------------------------
 
-   crvskkserv 1.1.0
+   crvskkserv 1.2.0
 
 -------------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ crvskkserv
 
 The MIT License
 
-Copyright (C) 2012-2013 Nathan Corvus Solis
+Copyright (c) 2012-2014 SASAKI Nobuyuki
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),
