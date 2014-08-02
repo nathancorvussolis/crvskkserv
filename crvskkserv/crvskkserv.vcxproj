@@ -85,6 +85,7 @@
     <ClInclude Include="eucjis2004table.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="utf8.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crvskkserv.cpp" />
@@ -98,6 +99,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="utf8.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="crvskkserv.rc" />

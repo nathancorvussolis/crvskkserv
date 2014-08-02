@@ -323,6 +323,13 @@ INT_PTR CALLBACK DlgProcGoogleCGIAPI(HWND hDlg, UINT message, WPARAM wParam, LPA
 			}
 			GetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_FILTER, filter, _countof(filter));
 			GetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_ANNOTATION, comment, _countof(comment));
+			for(index = 0; index < _countof(comment) && comment[index] != L'\0'; index++)
+			{
+				if(comment[index] == L'/' || comment[index] == L';')
+				{
+					comment[index] = L'\x20';
+				}
+			}
 			GetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_TIMEOUT, timeout, _countof(timeout));
 			_snwprintf_s(path, _TRUNCATE, L"%s%c%s%c%s%c%s%c%s%c", INIVAL_GOOGLECGIAPI, INIVAL_SVR_SEP,
 				filter, INIVAL_SVR_SEP, comment, INIVAL_SVR_SEP, timeout, INIVAL_SVR_SEP, encoding, INIVAL_SVR_SEP);

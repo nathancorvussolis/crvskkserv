@@ -2,19 +2,20 @@
 #pragma once
 
 #define RC_PRODUCT		"crvskkserv"
-#define RC_VERSION		"1.2.0"
-#define RC_VERSION_D	1,2,0,0
-#define RC_TITLE		"crvskkserv (ver. 1.2.0)"
+#define RC_VERSION		"2.0.0"
+#define RC_VERSION_D	2,0,0,0
+#define RC_TITLE		"crvskkserv (ver. 2.0.0)"
 #define RC_AUTHOR		"nathancorvussolis"
 
 #define APP_TITLE		L"crvskkserv"
-#define APP_VERSION		L"1.2.0"
+#define APP_VERSION		L"2.0.0"
 #define RES_VER RC_PRODUCT " (" RC_VERSION ") "
 
 #define REQ_END '0'
 #define REQ_KEY '1'
 #define REQ_VER '2'
 #define REQ_ADR '3'
+#define REQ_CMP '4'
 
 #define REP_OK '1'
 #define REP_NG '4'
@@ -23,8 +24,7 @@
 #define INIVAL_GOOGLECGIAPI	L"googlecgiapi"
 #define INIVAL_SVR_SEP		L'/'
 
-#define KEYSIZE		0x100
-#define BUFSIZE		0x4000
+#define DICBUFSIZE	0x1000
 #define RBUFSIZE	0x800
 
 #define WM_TASKBARICON_0	(WM_USER + 1)
@@ -71,12 +71,12 @@ void listen_thread(void *p);
 
 // search_dictionary
 void init_search_dictionary(DICINFO &dicinfo);
-void search_dictionary(DICINFO &dicinfo, LPCSTR key, std::string &s);
+void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s);
 
 // search_skkserv
-void search_skkserv(DICINFO &dicinfo, LPCSTR key, std::string &s);
+void search_skkserv(DICINFO &dicinfo, const std::string &key, std::string &s);
 void connect_skkserv(DICINFO &dicinfo);
 BOOL get_skkserv_version(SOCKET &sock);
 
 // search_google_cgiapi
-void search_google_cgiapi(DICINFO &dicinfo, LPCSTR key, std::string &s);
+void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string &s);

@@ -1,13 +1,11 @@
 ﻿
 #include "crvskkserv.h"
 
-void search_skkserv(DICINFO &dicinfo, LPCSTR key, std::string &s)
+void search_skkserv(DICINFO &dicinfo, const std::string &key, std::string &s)
 {
-	std::string res;
+	std::string res, ckey;
 	CHAR rbuf[RBUFSIZE];
 	int n;
-
-	s.clear();
 
 	if(dicinfo.sock == INVALID_SOCKET)
 	{
@@ -19,7 +17,9 @@ void search_skkserv(DICINFO &dicinfo, LPCSTR key, std::string &s)
 		return;
 	}
 
-	if(send(dicinfo.sock, key, strlen(key), 0) == SOCKET_ERROR)
+	ckey.push_back(REQ_KEY);
+	ckey += key + "\x20";
+	if(send(dicinfo.sock, ckey.c_str(), ckey.size(), 0) == SOCKET_ERROR)
 	{
 		disconnect(dicinfo.sock);
 		return;
@@ -29,21 +29,21 @@ void search_skkserv(DICINFO &dicinfo, LPCSTR key, std::string &s)
 	{
 		ZeroMemory(rbuf, sizeof(rbuf));
 		n = recv(dicinfo.sock, rbuf, sizeof(rbuf) - 1, 0);
-		if(n == SOCKET_ERROR || n == 0)
+		if(n == SOCKET_ERROR || n <= 0)
 		{
 			disconnect(dicinfo.sock);
 			return;
 		}
 
-		res += rbuf;
+		res.append(rbuf);
 
-		if(rbuf[n - 1] == '\n')
+		if(n <= _countof(rbuf) && rbuf[n - 1] == '\n')
 		{
 			break;
 		}
 	}
 
-	if(res.front() == REP_OK)
+	if(res.size() > 2 && res.front() == REP_OK)
 	{
 		s = res.substr(1);
 	}
@@ -160,6 +160,7 @@ BOOL get_skkserv_version(SOCKET &sock)
 	int n;
 	CHAR rbuf[RBUFSIZE];
 	CHAR sbuf = REQ_VER;
+	std::string res;
 
 	if(send(sock, &sbuf, 1, 0) == SOCKET_ERROR)
 	{
@@ -168,12 +169,21 @@ BOOL get_skkserv_version(SOCKET &sock)
 	}
 	else
 	{
-		ZeroMemory(rbuf, sizeof(rbuf));
-		n = recv(sock, rbuf, sizeof(rbuf) - 1, 0);
-		if(n == SOCKET_ERROR || n == 0)
+		while(true)
 		{
-			disconnect(sock);
-			bRet = FALSE;
+			ZeroMemory(rbuf, sizeof(rbuf));
+			n = recv(sock, rbuf, sizeof(rbuf) - 1, 0);
+			if(n == SOCKET_ERROR || n <= 0)
+			{
+				disconnect(sock);
+				bRet = FALSE;
+				break;
+			}
+
+			if(rbuf[n - 1] == '\x20')
+			{
+				break;
+			}
 		}
 	}
 

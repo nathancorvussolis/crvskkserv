@@ -70,52 +70,88 @@ void disconnect(SOCKET &sock)
 
 void comm(SOCKET &sock)
 {
-	CHAR key[KEYSIZE];
-	std::string s, res;
+	CHAR rbuf[RBUFSIZE];
+	std::string sbuf, ckey, s, res;
 	int i, n;
+	BOOL recvflag = TRUE;
 
-	memset(key, 0, sizeof(key));
-
-	n = recv(sock, key, sizeof(key) - 1, 0);
-	if(n == SOCKET_ERROR || n == 0)
+	while(recvflag)
 	{
-		disconnect(sock);
-		return;
+		ZeroMemory(rbuf, sizeof(rbuf));
+		n = recv(sock, rbuf, sizeof(rbuf) - 1, 0);
+		if(n == SOCKET_ERROR || n <= 0)
+		{
+			disconnect(sock);
+			return;
+		}
+
+		sbuf += rbuf;
+
+		if(sbuf.empty())
+		{
+			disconnect(sock);
+			return;
+		}
+
+		switch(sbuf.front())
+		{
+		case REQ_KEY:
+		case REQ_CMP:
+			if(rbuf[n - 1] == '\x20')
+			{
+				recvflag = FALSE;
+			}
+			break;
+		case REQ_END:
+		case REQ_VER:
+		case REQ_ADR:
+		default:
+			recvflag = FALSE;
+			break;
+		}
 	}
 
-	switch(key[0])
+	switch(sbuf.front())
 	{
 	case REQ_END:
 		disconnect(sock);
 		return;
 		break;
-	case REQ_KEY:
-		n = (int)vdicinfo.size();
-		for(i = 0; i < n; i++)
-		{
-			if(vdicinfo[i].path.compare(0, wcslen(INIVAL_SKKSERV), INIVAL_SKKSERV) == 0)
-			{
-				search_skkserv(vdicinfo[i], key, s);
-			}
-			else if(vdicinfo[i].path.compare(0, wcslen(INIVAL_GOOGLECGIAPI), INIVAL_GOOGLECGIAPI) == 0)
-			{
-				search_google_cgiapi(vdicinfo[i], key, s);
-			}
-			else
-			{
-				search_dictionary(vdicinfo[i], &key[1], s);
-			}
 
-			if(!s.empty())
+	case REQ_KEY:
+		if(sbuf.size() > 2)
+		{
+			ckey = sbuf.substr(1, sbuf.size() - 2);
+			n = (int)vdicinfo.size();
+			for(i = 0; i < n; i++)
 			{
-				if(res.size() >= 2)
+				s.clear();
+
+				if(vdicinfo[i].path.compare(0, wcslen(INIVAL_SKKSERV), INIVAL_SKKSERV) == 0)
 				{
-					res.pop_back();	// '\n'
-					res.pop_back(); // '/'
+					search_skkserv(vdicinfo[i], ckey, s);
 				}
-				res += s;
+				else if(vdicinfo[i].path.compare(0, wcslen(INIVAL_GOOGLECGIAPI), INIVAL_GOOGLECGIAPI) == 0)
+				{
+					search_google_cgiapi(vdicinfo[i], ckey, s);
+				}
+				else
+				{
+					search_dictionary(vdicinfo[i], ckey, s);
+				}
+
+				if(!s.empty())
+				{
+					if(res.size() >= 2)
+					{
+						res.pop_back();	// '\n'
+						res.pop_back(); // '/'
+					}
+					res += s;
+				}
 			}
 		}
+
 		if(res.empty())
 		{
 			res.push_back(REP_NG);
@@ -126,10 +162,28 @@ void comm(SOCKET &sock)
 			res.insert(res.begin(), REP_OK);
 		}
 		break;
+
 	case REQ_VER:
-	case REQ_ADR:
 		res = resver;
 		break;
+
+	case REQ_ADR:
+	{
+		CHAR host[NI_MAXHOST];
+		SOCKADDR_STORAGE sa;
+		int len = sizeof(sa);
+		if(getsockname(sock, (LPSOCKADDR)&sa, &len) == 0)
+		{
+			if(getnameinfo((LPSOCKADDR)&sa, len, host, _countof(host), NULL, 0, NI_NUMERICHOST) == 0)
+			{
+				res = host;
+				res += "\x20";
+			}
+		}
+	}
+		break;
+
+	case REQ_CMP:
 	default:
 		res.push_back(REP_NG);
 		res.push_back('\n');

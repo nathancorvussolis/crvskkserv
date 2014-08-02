@@ -1,106 +1,11 @@
 ﻿
 #include "crvskkserv.h"
 #include "eucjis2004.h"
+#include "utf8.h"
 
 //	http://www.google.com/intl/ja/ime/cgiapi.html
 
 LPCWSTR useragent = L"Mozilla/5.0 (compatible; " APP_TITLE L"/" APP_VERSION L")";
-
-std::string wstring_to_utf8_string(std::wstring &s)
-{
-	std::string ret;
-
-	int len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), -1, NULL, 0, NULL, NULL);
-	if(len > 0)
-	{
-		try
-		{
-			LPSTR utf8 = new CHAR[len];
-			if(WideCharToMultiByte(CP_UTF8, 0, s.c_str(), -1, utf8, len, NULL, NULL) > 0)
-			{
-				ret = utf8;
-			}
-			delete[] utf8;
-		}
-		catch(...)
-		{
-		}
-	}
-
-	return ret;
-}
-
-std::wstring utf8_string_to_wstring(std::string &s)
-{
-	std::wstring ret;
-
-	int len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, NULL, 0);
-	if(len > 0)
-	{
-		try
-		{
-			LPWSTR wcs = new WCHAR[len];
-			if(MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, wcs, len) > 0)
-			{
-				ret = wcs;
-			}
-			delete[] wcs;
-		}
-		catch(...)
-		{
-		}
-	}
-
-	return ret;
-}
-
-std::string wstring_to_euc_jis_2004_string(std::wstring &s)
-{
-	std::string ret;
-	size_t dstsize = -1;
-
-	if(WideCharToEucJis2004(s.c_str(), NULL, NULL, &dstsize))
-	{
-		try
-		{
-			LPSTR cs = new CHAR[dstsize];
-			if(WideCharToEucJis2004(s.c_str(), NULL, cs, &dstsize))
-			{
-				ret = cs;
-			}
-			delete[] cs;
-		}
-		catch(...)
-		{
-		}
-	}
-
-	return ret;
-}
-
-std::wstring euc_jis_2004_string_to_wstring(std::string &s)
-{
-	std::wstring ret;
-	size_t dstsize = -1;
-
-	if(EucJis2004ToWideChar(s.c_str(), NULL, NULL, &dstsize))
-	{
-		try
-		{
-			LPWSTR wcs = new WCHAR[dstsize];
-			if(EucJis2004ToWideChar(s.c_str(), NULL, wcs, &dstsize))
-			{
-				ret = wcs;
-			}
-			delete[] wcs;
-		}
-		catch(...)
-		{
-		}
-	}
-
-	return ret;
-}
 
 void split_google_cgiapi_path(DICINFO &dicinfo, std::wstring &filter, std::wstring &comment, std::wstring &timeout, std::wstring &encoding)
 {
@@ -124,12 +29,14 @@ void split_google_cgiapi_path(DICINFO &dicinfo, std::wstring &filter, std::wstri
 	encoding = dicinfo.path.substr(is, ie - is);
 }
 
-void search_google_cgiapi(DICINFO &dicinfo, LPCSTR key, std::string &s)
+void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string &s)
 {
 	HINTERNET hInet;
 	HINTERNET hUrl;
 	WCHAR url[INTERNET_MAX_URL_LENGTH];
-	CHAR buf[BUFSIZE];
+	CHAR rbuf[RBUFSIZE];
+	std::string res;
+	BOOL retRead;
 	DWORD bytesRead = 0;
 	WCHAR pe[4];
 	size_t i;
@@ -141,7 +48,7 @@ void search_google_cgiapi(DICINFO &dicinfo, LPCSTR key, std::string &s)
 	DWORD dwTimeout;
 	std::wstring wkey;
 	std::string ckey;
-	size_t srcsize, dstsize;
+	size_t dstsize;
 
 	//接続情報取得
 	split_google_cgiapi_path(dicinfo, filter, annotation, timeout, encoding);
@@ -149,22 +56,17 @@ void search_google_cgiapi(DICINFO &dicinfo, LPCSTR key, std::string &s)
 	//文字コードチェック、UTF-8変換
 	if(encoding == inival_googlecgiapi_encoding_euc)
 	{
-		srcsize = strlen(key) - 2;
 		dstsize = -1;
-		if(EucJis2004ToWideChar(key + 1, &srcsize, NULL, &dstsize) == FALSE)
+		if(!EucJis2004ToWideChar(key.c_str(), NULL, NULL, &dstsize))
 		{
 			return;
 		}
-		wkey = euc_jis_2004_string_to_wstring(std::string(key).substr(1, strlen(key) - 2));
+		wkey = eucjis2004_string_to_wstring(key);
 		ckey = wstring_to_utf8_string(wkey);
 	}
 	else if(encoding == inival_googlecgiapi_encoding_utf8)
 	{
-		if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, ckey.c_str(), -1, NULL, 0) == 0)
-		{
-			return;
-		}
-		ckey = std::string(key).substr(1, strlen(key) - 2);
+		ckey = key;
 		wkey = utf8_string_to_wstring(ckey);
 	}
 	else
@@ -212,43 +114,59 @@ void search_google_cgiapi(DICINFO &dicinfo, LPCSTR key, std::string &s)
 		InternetSetOptionW(hInet, INTERNET_OPTION_CONNECT_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 		InternetSetOptionW(hInet, INTERNET_OPTION_DATA_SEND_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 		InternetSetOptionW(hInet, INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
+
 		hUrl = InternetOpenUrlW(hInet, url, NULL, 0, 0, 0);
 		if(hUrl != NULL)
 		{
-			ZeroMemory(buf, sizeof(buf));
-			InternetReadFile(hUrl, buf, BUFSIZE - 1, &bytesRead);
+			while(true)
+			{
+				ZeroMemory(rbuf, sizeof(rbuf));
+				retRead = InternetReadFile(hUrl, rbuf, sizeof(rbuf) - 1, &bytesRead);
+				if(retRead)
+				{
+					if(bytesRead == 0) break;
+				}
+				else
+				{
+					InternetCloseHandle(hUrl);
+					InternetCloseHandle(hInet);
+					return;
+				}
+
+				res.append(rbuf);
+			}
 			InternetCloseHandle(hUrl);
 		}
 		InternetCloseHandle(hInet);
 	}
 
-	if(bytesRead == 0)
-	{
-		return;
-	}
-
-	wjson.assign(utf8_string_to_wstring(std::string(buf)));
+	wjson = utf8_string_to_wstring(res);
 
 	//エスケープシーケンス 制御文字
 	wreg = L"\\\\[bfnrt]";
 	wfmt = L"";
 	wjson = std::regex_replace(wjson, wreg, wfmt);
+
 	//エスケープシーケンス バックスラッシュ
 	wreg = L"\\\\\\\\";
 	wfmt = L"\\u005C";
 	wjson = std::regex_replace(wjson, wreg, wfmt);
+
 	//エスケープシーケンス スラッシュ
 	wreg = L"\\\\/";
 	wfmt = L"\\u002F";
 	wjson = std::regex_replace(wjson, wreg, wfmt);
+
 	//エスケープシーケンス ダブルクォーテーション
 	wreg = L"\\\\\"";
 	wfmt = L"\\u0022";
+
 	//角括弧
 	wjson = std::regex_replace(wjson, wreg, wfmt);
 	wreg = L"\\[\\[.+,\\[(.+)\\]\\]\\]";
 	wfmt = L"$1";
 	wjson = std::regex_replace(wjson, wreg, wfmt);
+
 	//各要素
 	wreg = L"\".+?\"";
 	wjson_tmp = wjson;
@@ -256,7 +174,8 @@ void search_google_cgiapi(DICINFO &dicinfo, LPCSTR key, std::string &s)
 	while(std::regex_search(wjson_tmp, wres, wreg))
 	{
 		c = wres.str().substr(1, wres.str().size() - 2);
-		if(c.find_first_of(L"/") != std::wstring::npos || c.find_first_of(L";") != std::wstring::npos)
+		if(c.find_first_of(L"/") != std::wstring::npos ||
+			c.find_first_of(L";") != std::wstring::npos)
 		{
 			wreg = L"/";
 			wfmt = L"\\057";
@@ -266,20 +185,16 @@ void search_google_cgiapi(DICINFO &dicinfo, LPCSTR key, std::string &s)
 			c = std::regex_replace(c, wreg, wfmt);
 			c = L"(concat \"" + c + L"\")";
 		}
-		//EUC-JIS-2004に変換できないとき候補に追加しない
-		wjson_tmp = wres.suffix();
-		dstsize = -1;
-		if(encoding == inival_googlecgiapi_encoding_euc &&
-			WideCharToEucJis2004(c.c_str(), NULL, NULL, &dstsize) == FALSE)
-		{
-			continue;
-		}
+
 		if(!annotation.empty())
 		{
 			c += L";" + annotation;
 		}
 		wjson += c + L"/";
+
+		wjson_tmp = wres.suffix();
 	}
+
 	//エスケープシーケンス Unicode
 	wreg = L"\\\\u[0-9A-F]{4}";
 	wjson_tmp = wjson;
@@ -295,6 +210,7 @@ void search_google_cgiapi(DICINFO &dicinfo, LPCSTR key, std::string &s)
 		wjson_tmp = wres.suffix();
 	}
 	wjson.append(wjson_tmp);
+
 	//制御文字
 	wreg = L"[\\x00-\\x19]";
 	wfmt = L"";
@@ -304,7 +220,17 @@ void search_google_cgiapi(DICINFO &dicinfo, LPCSTR key, std::string &s)
 
 	if(encoding == inival_googlecgiapi_encoding_euc)
 	{
-		s = wstring_to_euc_jis_2004_string(wjson);
+		wjson_tmp = wjson;
+		wreg = L"/[^/]+";
+		while(std::regex_search(wjson_tmp, wres, wreg))
+		{
+			dstsize = -1;
+			if(WideCharToEucJis2004(wres.str().c_str(), NULL, NULL, &dstsize))
+			{
+				s += wstring_to_eucjis2004_string(wres.str());
+			}
+			wjson_tmp = wres.suffix();
+		}
 	}
 	else if(encoding == inival_googlecgiapi_encoding_utf8)
 	{
