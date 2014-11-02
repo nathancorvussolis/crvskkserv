@@ -1,5 +1,6 @@
 ﻿
 #include "crvskkserv.h"
+#include "utf8.h"
 
 int make_serv_sock(SERVINFO *servinfo, int servinfonum)
 {
@@ -104,7 +105,7 @@ void comm(SOCKET &sock)
 			break;
 		case REQ_END:
 		case REQ_VER:
-		case REQ_ADR:
+		case REQ_HST:
 		default:
 			recvflag = FALSE;
 			break;
@@ -154,12 +155,12 @@ void comm(SOCKET &sock)
 
 		if(res.empty())
 		{
-			res.push_back(REP_NG);
+			res.push_back(REP_NOT_FOUND);
 			res.push_back('\n');
 		}
 		else
 		{
-			res.insert(res.begin(), REP_OK);
+			res.insert(res.begin(), REP_FOUND);
 		}
 		break;
 
@@ -167,26 +168,38 @@ void comm(SOCKET &sock)
 		res = resver;
 		break;
 
-	case REQ_ADR:
+	case REQ_HST:
 	{
 		CHAR host[NI_MAXHOST];
 		SOCKADDR_STORAGE sa;
 		int len = sizeof(sa);
 		if(getsockname(sock, (LPSOCKADDR)&sa, &len) == 0)
 		{
+			if(getnameinfo((LPSOCKADDR)&sa, len, host, _countof(host), NULL, 0, NI_NAMEREQD) == 0)
+			{
+				res += host;
+				res += "/";
+			}
 			if(getnameinfo((LPSOCKADDR)&sa, len, host, _countof(host), NULL, 0, NI_NUMERICHOST) == 0)
 			{
-				res = host;
-				res += "\x20";
+				if(sa.ss_family == AF_INET6) res += "[";
+				res += host;
+				if(sa.ss_family == AF_INET6) res += "]";
+				res += ":";
+				res += WCTOU8(serv_port);
+				res += "/\x20";
 			}
 		}
 	}
 		break;
 
 	case REQ_CMP:
-	default:
-		res.push_back(REP_NG);
+		res.push_back(REP_NOT_FOUND);
 		res.push_back('\n');
+		break;
+
+	default:
+		return;
 		break;
 	}
 

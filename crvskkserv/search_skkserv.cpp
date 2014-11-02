@@ -43,7 +43,7 @@ void search_skkserv(DICINFO &dicinfo, const std::string &key, std::string &s)
 		}
 	}
 
-	if(res.size() > 2 && res.front() == REP_OK)
+	if(res.size() > 2 && res.front() == REP_FOUND)
 	{
 		s = res.substr(1);
 	}

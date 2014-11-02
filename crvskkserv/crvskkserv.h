@@ -2,23 +2,24 @@
 #pragma once
 
 #define RC_PRODUCT		"crvskkserv"
-#define RC_VERSION		"2.0.1"
-#define RC_VERSION_D	2,0,1,0
-#define RC_TITLE		"crvskkserv (ver. 2.0.1)"
+#define RC_VERSION		"2.0.2"
+#define RC_VERSION_D	2,0,2,0
+#define RC_TITLE		"crvskkserv (ver. 2.0.2)"
 #define RC_AUTHOR		"nathancorvussolis"
 
 #define APP_TITLE		L"crvskkserv"
-#define APP_VERSION		L"2.0.1"
-#define RES_VER RC_PRODUCT "(" RC_VERSION ") "
+#define APP_VERSION		L"2.0.2"
+#define RES_VER RC_PRODUCT "/" RC_VERSION " "
 
-#define REQ_END '0'
-#define REQ_KEY '1'
-#define REQ_VER '2'
-#define REQ_ADR '3'
-#define REQ_CMP '4'
+#define REQ_END		'0'
+#define REQ_KEY		'1'
+#define REQ_VER		'2'
+#define REQ_HST		'3'
+#define REQ_CMP		'4'
 
-#define REP_OK '1'
-#define REP_NG '4'
+#define REP_ERROR		'0'
+#define REP_FOUND		'1'
+#define REP_NOT_FOUND	'4'
 
 #define INIVAL_SKKSERV		L"skkserv"
 #define INIVAL_GOOGLECGIAPI	L"googlecgiapi"
