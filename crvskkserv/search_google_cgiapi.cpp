@@ -48,7 +48,6 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	DWORD dwTimeout;
 	std::wstring wkey;
 	std::string ckey;
-	size_t dstsize;
 
 	//接続情報取得
 	split_google_cgiapi_path(dicinfo, filter, annotation, timeout, encoding);
@@ -56,18 +55,21 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	//文字コードチェック、UTF-8変換
 	if(encoding == inival_googlecgiapi_encoding_euc)
 	{
-		dstsize = -1;
-		if(!EucJis2004ToWideChar(key.c_str(), NULL, NULL, &dstsize))
+		wkey = eucjis2004_string_to_wstring(key);
+		if(wkey.empty())
 		{
 			return;
 		}
-		wkey = eucjis2004_string_to_wstring(key);
 		ckey = wstring_to_utf8_string(wkey);
 	}
 	else if(encoding == inival_googlecgiapi_encoding_utf8)
 	{
 		ckey = key;
 		wkey = utf8_string_to_wstring(ckey);
+		if(wkey.empty())
+		{
+			return;
+		}
 	}
 	else
 	{
@@ -218,22 +220,18 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 
 	wjson += L"\n";
 
-	if(encoding == inival_googlecgiapi_encoding_euc)
+	wjson_tmp = wjson;
+	wreg = L"/[^/]+";
+	while(std::regex_search(wjson_tmp, wres, wreg))
 	{
-		wjson_tmp = wjson;
-		wreg = L"/[^/]+";
-		while(std::regex_search(wjson_tmp, wres, wreg))
+		if(encoding == inival_googlecgiapi_encoding_euc)
 		{
-			dstsize = -1;
-			if(WideCharToEucJis2004(wres.str().c_str(), NULL, NULL, &dstsize))
-			{
-				s += wstring_to_eucjis2004_string(wres.str());
-			}
-			wjson_tmp = wres.suffix();
+			s += wstring_to_eucjis2004_string(wres.str());
 		}
-	}
-	else if(encoding == inival_googlecgiapi_encoding_utf8)
-	{
-		s = wstring_to_utf8_string(wjson);
+		else if(encoding == inival_googlecgiapi_encoding_utf8)
+		{
+			s += wstring_to_utf8_string(wres.str());
+		}
+		wjson_tmp = wres.suffix();
 	}
 }

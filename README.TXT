@@ -1,7 +1,7 @@
 ﻿
 -------------------------------------------------------------------------------
 
-   crvskkserv 2.0.2
+   crvskkserv 2.1.0
 
 -------------------------------------------------------------------------------
 
@@ -36,7 +36,8 @@ UTF-8からEUC-JIS-2004に変換できない文字を含む候補は除外され
 
 "1<見出し語> "
 	辞書検索
-	応答 : 検索結果 "1/<候補 1>/<候補 2>/ … /<候補 n>\n" または 検索結果なし "4\n"
+	応答 : 検索結果 "1/<候補 1>/<候補 2>/ … /<候補 n>\n"
+		または 検索結果なし "4\n"
 
 "2"
 	バージョン番号取得
@@ -66,7 +67,7 @@ crvskkserv
 
 The MIT License
 
-Copyright (c) 2012-2014 SASAKI Nobuyuki
+Copyright (C) 2012-2015 SASAKI Nobuyuki
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),
