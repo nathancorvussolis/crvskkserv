@@ -264,6 +264,13 @@ INT_PTR CALLBACK DlgProcSKKServ(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
 			ListView_EnsureVisible(hWndListView, index, FALSE);
 
+			if(ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
+			{
+				EnableWindow(GetDlgItem(hPDlg, IDC_BUTTON_SKK_DIC_ADD), FALSE);
+				EnableWindow(GetDlgItem(hPDlg, IDC_BUTTON_SKKSERV_ADD), FALSE);
+				EnableWindow(GetDlgItem(hPDlg, IDC_BUTTON_GOOGLECGIAPI_ADD), FALSE);
+			}
+
 			EndDialog(hDlg, 0);
 			break;
 
@@ -354,6 +361,13 @@ INT_PTR CALLBACK DlgProcGoogleCGIAPI(HWND hDlg, UINT message, WPARAM wParam, LPA
 			ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
 			ListView_EnsureVisible(hWndListView, index, FALSE);
 
+			if(ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
+			{
+				EnableWindow(GetDlgItem(hPDlg, IDC_BUTTON_SKK_DIC_ADD), FALSE);
+				EnableWindow(GetDlgItem(hPDlg, IDC_BUTTON_SKKSERV_ADD), FALSE);
+				EnableWindow(GetDlgItem(hPDlg, IDC_BUTTON_GOOGLECGIAPI_ADD), FALSE);
+			}
+
 			EndDialog(hDlg, 0);
 			break;
 
@@ -426,6 +440,13 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 		}
 
 		ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
+
+		if(ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
+		{
+			EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKK_DIC_ADD), FALSE);
+			EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKKSERV_ADD), FALSE);
+			EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_GOOGLECGIAPI_ADD), FALSE);
+		}
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:
@@ -525,6 +546,13 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 				ListView_SetItemState(hWndListView, index, LVIS_FOCUSED | LVIS_SELECTED, 0x000F);
 				ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
 				ListView_EnsureVisible(hWndListView, index, FALSE);
+
+				if(ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
+				{
+					EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKK_DIC_ADD), FALSE);
+					EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKKSERV_ADD), FALSE);
+					EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_GOOGLECGIAPI_ADD), FALSE);
+				}
 			}
 			return (INT_PTR)TRUE;
 
@@ -542,6 +570,13 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 			{
 				ListView_DeleteItem(hWndListView, index);
 				ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
+
+				if(ListView_GetItemCount(hWndListView) < MAX_DICNUM)
+				{
+					EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKK_DIC_ADD), TRUE);
+					EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKKSERV_ADD), TRUE);
+					EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_GOOGLECGIAPI_ADD), TRUE);
+				}
 			}
 			return (INT_PTR)TRUE;
 

@@ -114,8 +114,8 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	if(hInet != NULL)
 	{
 		InternetSetOptionW(hInet, INTERNET_OPTION_CONNECT_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
-		InternetSetOptionW(hInet, INTERNET_OPTION_DATA_SEND_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
-		InternetSetOptionW(hInet, INTERNET_OPTION_DATA_RECEIVE_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
+		InternetSetOptionW(hInet, INTERNET_OPTION_SEND_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
+		InternetSetOptionW(hInet, INTERNET_OPTION_RECEIVE_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 
 		hUrl = InternetOpenUrlW(hInet, url, NULL, 0, 0, 0);
 		if(hUrl != NULL)
