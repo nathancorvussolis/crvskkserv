@@ -3,7 +3,7 @@
 #include "eucjis2004.h"
 #include "utf8.h"
 
-//	http://www.google.com/intl/ja/ime/cgiapi.html
+// https://www.google.co.jp/ime/cgiapi.html
 
 LPCWSTR useragent = L"Mozilla/5.0 (compatible; " APP_TITLE L"/" APP_VERSION L")";
 
