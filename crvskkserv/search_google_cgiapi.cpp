@@ -162,9 +162,9 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	//エスケープシーケンス ダブルクォーテーション
 	wreg = L"\\\\\"";
 	wfmt = L"\\u0022";
+	wjson = std::regex_replace(wjson, wreg, wfmt);
 
 	//角括弧
-	wjson = std::regex_replace(wjson, wreg, wfmt);
 	wreg = L"\\[\\[.+,\\[(.+)\\]\\]\\]";
 	wfmt = L"$1";
 	wjson = std::regex_replace(wjson, wreg, wfmt);
