@@ -22,7 +22,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 	_wfopen_s(&fpidx, idxpath, RB);
 	if(fpidx != NULL)
 	{
-		while(fread(&pos, 4, 1, fpidx) == 1)
+		while(fread(&pos, sizeof(pos), 1, fpidx) == 1)
 		{
 			dicinfo.pos.push_back(pos);
 		}
@@ -44,7 +44,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 
 		while((pb = fgets(buf, sizeof(buf), fpdic)) != NULL)
 		{
-			sbuf.append(buf);
+			sbuf += buf;
 
 			if(!sbuf.empty() && sbuf.back() == '\n')
 			{
@@ -67,7 +67,8 @@ void init_search_dictionary(DICINFO &dicinfo)
 		}
 		else if(okuri != -1)
 		{
-			if((pidx = sbuf.find_first_of('\x20')) != std::string::npos)
+			pidx = sbuf.find("\x20/");
+			if(pidx != std::string::npos && pidx <= sbuf.size())
 			{
 				map.insert(PAIR(sbuf.substr(0, pidx), pos));
 			}
@@ -107,10 +108,8 @@ void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s)
 {
 	FILE *fpdic;
 	CHAR buf[DICBUFSIZE];
-	std::string sbuf, ckey;
+	std::string ckey, sbuf, kbuf, cbuf;
 	long pos, left, mid, right;
-	int comp;
-	size_t pidx;
 	
 	_wfopen_s(&fpdic, dicinfo.path.c_str(), RB);
 	if(fpdic == NULL)
@@ -121,17 +120,17 @@ void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s)
 	ckey = key + "\x20";
 
 	left = 0;
-	right = dicinfo.pos.size() - 1;
+	right = (long)dicinfo.pos.size() - 1;
 
 	while(left <= right)
 	{
-		mid = (left + right) / 2;
-		pos = dicinfo.pos.at(mid);
-
+		mid = left + (right - left) / 2;
+		pos = dicinfo.pos[mid];
 		fseek(fpdic, pos, SEEK_SET);
-		memset(buf, 0, sizeof(buf));
 		
 		sbuf.clear();
+		kbuf.clear();
+		cbuf.clear();
 
 		while(fgets(buf, _countof(buf), fpdic) != NULL)
 		{
@@ -143,19 +142,20 @@ void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s)
 			}
 		}
 
-		comp = strncmp(ckey.c_str(), sbuf.c_str(), ckey.size());
-		if(comp == 0)
+		size_t cidx = sbuf.find("\x20/");
+		if(cidx != std::wstring::npos && cidx < sbuf.size())
 		{
-			if((pidx = sbuf.find_first_of('\x20')) != std::string::npos)
-			{
-				if((pidx = sbuf.find_first_of('/', pidx)) != std::string::npos)
-				{
-					s = sbuf.substr(pidx);
-				}
-			}
+			kbuf = sbuf.substr(0, cidx + 1);
+			cbuf = sbuf.substr(cidx + 1);
+		}
+
+		int cmpkey = ckey.compare(kbuf);
+		if(cmpkey == 0)
+		{
+			s = cbuf;
 			break;
 		}
-		else if(comp > 0)
+		else if(cmpkey > 0)
 		{
 			left = mid + 1;
 		}
