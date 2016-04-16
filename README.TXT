@@ -26,7 +26,7 @@ SKK辞書サーバ通信は、IPv4、IPv6に対応しています。
 
 Google CGI APIの「見出し語の検索除外条件」設定は、おそらく送りあり(と思われる)
 見出し語を除外する正規表現がデフォルトとなっています。
-Visual C++ 2015 のTR1正規表現で、文法はECMAScriptを使用しています。
+Visual C++ 2015 の正規表現で、文法はECMAScriptを使用しています。
 https://msdn.microsoft.com/en-us/library/bb982727(v=vs.140).aspx
 
 Google CGI APIの設定でクライアントの文字コードをEUC-JIS-2004にしたとき、
