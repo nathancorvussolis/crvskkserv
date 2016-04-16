@@ -1,5 +1,6 @@
 ﻿
-#pragma once
+#ifndef RESOURCE_H
+#define RESOURCE_H
 
 #ifndef IDC_STATIC
 #define IDC_STATIC (-1)
@@ -33,3 +34,5 @@
 #define IDC_EDIT_GOOGLECGIAPI_TIMEOUT           313
 #define IDC_RADIO_GOOGLECGIAPI_EUC              314
 #define IDC_RADIO_GOOGLECGIAPI_UTF8             315
+
+#endif

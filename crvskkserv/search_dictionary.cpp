@@ -20,7 +20,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 	_snwprintf_s(idxpath, _TRUNCATE, L"%s.idx", dicinfo.path.c_str());
 
 	_wfopen_s(&fpidx, idxpath, RB);
-	if(fpidx != NULL)
+	if(fpidx != nullptr)
 	{
 		while(fread(&pos, sizeof(pos), 1, fpidx) == 1)
 		{
@@ -32,7 +32,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 #endif
 
 	_wfopen_s(&fpdic, dicinfo.path.c_str(), RB);
-	if(fpdic == NULL)
+	if(fpdic == nullptr)
 	{
 		return;
 	}
@@ -42,7 +42,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 	{
 		sbuf.clear();
 
-		while((pb = fgets(buf, sizeof(buf), fpdic)) != NULL)
+		while((pb = fgets(buf, sizeof(buf), fpdic)) != nullptr)
 		{
 			sbuf += buf;
 
@@ -52,7 +52,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 			}
 		}
 
-		if(pb == NULL)
+		if(pb == nullptr)
 		{
 			break;
 		}
@@ -89,7 +89,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 		dicinfo.pos.push_back(map_itr->second);
 
 #if USEIDXFILE
-		if(fpidx != NULL)
+		if(fpidx != nullptr)
 		{
 			fwrite(&map_itr->second, sizeof(map_itr->second), 1, fpidx);
 		}
@@ -97,7 +97,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 	}
 
 #if USEIDXFILE
-	if(fpidx != NULL)
+	if(fpidx != nullptr)
 	{
 		fclose(fpidx);
 	}
@@ -112,7 +112,7 @@ void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s)
 	long pos, left, mid, right;
 	
 	_wfopen_s(&fpdic, dicinfo.path.c_str(), RB);
-	if(fpdic == NULL)
+	if(fpdic == nullptr)
 	{
 		return;
 	}
@@ -132,7 +132,7 @@ void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s)
 		kbuf.clear();
 		cbuf.clear();
 
-		while(fgets(buf, _countof(buf), fpdic) != NULL)
+		while(fgets(buf, _countof(buf), fpdic) != nullptr)
 		{
 			sbuf += buf;
 

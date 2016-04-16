@@ -1,5 +1,4 @@
 ﻿
-#include "stdafx.h"
 #include "crvskkserv.h"
 #include "resource.h"
 
@@ -71,15 +70,15 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdL
 	wcex.cbWndExtra		= 0;
 	wcex.hInstance		= hInstance;
 	wcex.hIcon			= LoadIconW(hInstance, MAKEINTRESOURCE(IDI_CRVSKKSERV));
-	wcex.hCursor		= LoadCursorW(NULL, IDC_ARROW);
+	wcex.hCursor		= LoadCursorW(nullptr, IDC_ARROW);
 	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= NULL;
+	wcex.lpszMenuName	= nullptr;
 	wcex.lpszClassName	= title;
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_CRVSKKSERV));
 
 	RegisterClassExW(&wcex);
 
-	hWnd = CreateWindowW(title, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, NULL, NULL, hInstance, NULL);
+	hWnd = CreateWindowW(title, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, nullptr, nullptr, hInstance, nullptr);
 
 	if(!hWnd)
 	{
@@ -89,9 +88,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdL
 	//ShowWindow(hWnd, nCmdShow);
 	//UpdateWindow(hWnd);
 
-	while(GetMessageW(&msg, NULL, 0, 0))
+	while(GetMessageW(&msg, nullptr, 0, 0))
 	{
-		if(!TranslateAcceleratorW(msg.hwnd, NULL, &msg))
+		if(!TranslateAcceleratorW(msg.hwnd, nullptr, &msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessageW(&msg);
@@ -110,7 +109,7 @@ void GetIniFileName(LPWSTR ini, size_t len)
 	WCHAR fname[_MAX_FNAME];
 	WCHAR ext[_MAX_EXT];
 
-	GetModuleFileNameW(NULL, ini, len);
+	GetModuleFileNameW(nullptr, ini, len);
 	_wsplitpath_s(ini, drive, dir, fname, ext);
 	_wmakepath_s(ini, len, drive, dir, fname, L"ini");
 }
@@ -456,7 +455,7 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 		{
 		case IDOK:
 			_wfopen_s(&fp, ini, WB);
-			if(fp != NULL)
+			if(fp != nullptr)
 			{
 				fwrite("\xFF\xFE", 2, 1, fp);
 				fclose(fp);
@@ -660,7 +659,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if(hSubMenu)
 				{
 					TrackPopupMenu(hSubMenu, TPM_LEFTALIGN | TPM_BOTTOMALIGN | TPM_RIGHTBUTTON,
-						pt.x, pt.y, NULL, hWnd, NULL);
+						pt.x, pt.y, 0, hWnd, nullptr);
 				}
 				DestroyMenu(hMenu);
 			}

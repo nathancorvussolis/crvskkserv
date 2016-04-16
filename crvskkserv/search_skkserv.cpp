@@ -81,10 +81,10 @@ void connect_skkserv(DICINFO &dicinfo)
 
 	split_skkserv_path(dicinfo, host, port, timeout);
 
-	dwTimeout = wcstoul(timeout.c_str(), NULL, 0);
+	dwTimeout = wcstoul(timeout.c_str(), nullptr, 0);
 	if(dwTimeout == 0 || dwTimeout == ULONG_MAX)
 	{
-		dwTimeout = wcstoul(inival_def_timeout, NULL, 0);
+		dwTimeout = wcstoul(inival_def_timeout, nullptr, 0);
 	}
 
 	ZeroMemory(&aiwHints, sizeof(aiwHints));
@@ -97,7 +97,7 @@ void connect_skkserv(DICINFO &dicinfo)
 		return;
 	}
 
-	for(paiw = paiwResult; paiw != NULL; paiw = paiw->ai_next)
+	for(paiw = paiwResult; paiw != nullptr; paiw = paiw->ai_next)
 	{
 		dicinfo.sock = socket(paiw->ai_family, paiw->ai_socktype, paiw->ai_protocol); 
 		if(dicinfo.sock == INVALID_SOCKET)
@@ -142,7 +142,7 @@ void connect_skkserv(DICINFO &dicinfo)
 		FD_SET(dicinfo.sock, &fdw);
 		FD_SET(dicinfo.sock, &fde);
 
-		select(0, NULL, &fdw, &fde, &tv);
+		select(0, nullptr, &fdw, &fde, &tv);
 		if(FD_ISSET(dicinfo.sock, &fdw))
 		{
 			break;

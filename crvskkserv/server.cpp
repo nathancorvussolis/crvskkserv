@@ -19,12 +19,12 @@ int make_serv_sock(SERVINFO *servinfo, int servinfonum)
 	aiwHints.ai_socktype = SOCK_STREAM;
 	aiwHints.ai_protocol = IPPROTO_TCP;
 
-	if(GetAddrInfoW(NULL, serv_port, &aiwHints, &paiwResult) != 0)
+	if(GetAddrInfoW(nullptr, serv_port, &aiwHints, &paiwResult) != 0)
 	{
 		return 0;
 	}
 
-	for(i = 0, paiw = paiwResult; i < servinfonum, paiw != NULL; paiw = paiw->ai_next)
+	for(i = 0, paiw = paiwResult; i < servinfonum, paiw != nullptr; paiw = paiw->ai_next)
 	{
 		servinfo[i].sock = socket(paiw->ai_family, paiw->ai_socktype, paiw->ai_protocol); 
 		if(servinfo[i].sock == INVALID_SOCKET)
@@ -175,12 +175,12 @@ void comm(SOCKET &sock)
 		int len = sizeof(sa);
 		if(getsockname(sock, (LPSOCKADDR)&sa, &len) == 0)
 		{
-			if(getnameinfo((LPSOCKADDR)&sa, len, host, _countof(host), NULL, 0, NI_NAMEREQD) == 0)
+			if(getnameinfo((LPSOCKADDR)&sa, len, host, _countof(host), nullptr, 0, NI_NAMEREQD) == 0)
 			{
 				res += host;
 				res += "/";
 			}
-			if(getnameinfo((LPSOCKADDR)&sa, len, host, _countof(host), NULL, 0, NI_NUMERICHOST) == 0)
+			if(getnameinfo((LPSOCKADDR)&sa, len, host, _countof(host), nullptr, 0, NI_NUMERICHOST) == 0)
 			{
 				if(sa.ss_family == AF_INET6) res += "[";
 				res += host;

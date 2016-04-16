@@ -89,10 +89,10 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 		return;
 	}
 
-	dwTimeout = wcstoul(timeout.c_str(), NULL, 0);
+	dwTimeout = wcstoul(timeout.c_str(), nullptr, 0);
 	if(dwTimeout == 0 || dwTimeout == ULONG_MAX)
 	{
-		dwTimeout = wcstoul(inival_def_timeout, NULL, 0);
+		dwTimeout = wcstoul(inival_def_timeout, nullptr, 0);
 	}
 
 	_snwprintf_s(url, _TRUNCATE, L"%s", googlecgiapi_url_prefix);
@@ -110,15 +110,15 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 		wcsncat_s(url, pe, _TRUNCATE);
 	}
 
-	hInet = InternetOpenW(useragent, INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
-	if(hInet != NULL)
+	hInet = InternetOpenW(useragent, INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, 0);
+	if(hInet != nullptr)
 	{
 		InternetSetOptionW(hInet, INTERNET_OPTION_CONNECT_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 		InternetSetOptionW(hInet, INTERNET_OPTION_SEND_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 		InternetSetOptionW(hInet, INTERNET_OPTION_RECEIVE_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 
-		hUrl = InternetOpenUrlW(hInet, url, NULL, 0, 0, 0);
-		if(hUrl != NULL)
+		hUrl = InternetOpenUrlW(hInet, url, nullptr, 0, 0, 0);
+		if(hUrl != nullptr)
 		{
 			while(true)
 			{
@@ -204,7 +204,7 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	while(std::regex_search(wjson_tmp, wres, wreg))
 	{
 		wjson.append(wres.prefix());
-		WCHAR ch = (WCHAR)wcstoul(wres.str().substr(2).c_str(), NULL, 16);
+		WCHAR ch = (WCHAR)wcstoul(wres.str().substr(2).c_str(), nullptr, 16);
 		if(ch != L'\0')
 		{
 			wjson.push_back(ch);
