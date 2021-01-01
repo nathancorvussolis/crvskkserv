@@ -1,15 +1,13 @@
-﻿
-#ifndef CRVSKKSERV_H
-#define CRVSKKSERV_H
+﻿#pragma once
 
 #define RC_PRODUCT		"crvskkserv"
-#define RC_VERSION		"2.2.0"
-#define RC_VERSION_D	2,2,0,0
-#define RC_TITLE		"crvskkserv (ver. 2.2.0)"
+#define RC_VERSION		"2.4.0"
+#define RC_VERSION_D	2,4,0,0
+#define RC_TITLE		"crvskkserv (ver. 2.4.0)"
 #define RC_AUTHOR		"nathancorvussolis"
 
 #define APP_TITLE		L"crvskkserv"
-#define APP_VERSION		L"2.2.0"
+#define APP_VERSION		L"2.4.0"
 #define RES_VER RC_PRODUCT "/" RC_VERSION " "
 
 #define REQ_END		'0'
@@ -82,5 +80,3 @@ BOOL get_skkserv_version(SOCKET &sock);
 
 // search_google_cgiapi
 void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string &s);
-
-#endif

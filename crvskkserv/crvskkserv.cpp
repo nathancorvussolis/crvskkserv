@@ -50,7 +50,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdL
 	WSADATA wsaData;
 	INITCOMMONCONTROLSEX icex;
 
-	_wsetlocale(LC_ALL, L"JPN");
+	_wsetlocale(LC_ALL, L"ja-JP");
 
 	icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 	icex.dwICC = ICC_LISTVIEW_CLASSES;
@@ -78,7 +78,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdL
 
 	RegisterClassExW(&wcex);
 
-	hWnd = CreateWindowW(title, title, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, nullptr, nullptr, hInstance, nullptr);
+	hWnd = CreateWindowW(title, title, WS_OVERLAPPEDWINDOW, 0, 0, 320, 200, nullptr, nullptr, hInstance, nullptr);
 
 	if(!hWnd)
 	{
@@ -217,7 +217,7 @@ INT_PTR CALLBACK DlgProcSKKServ(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	static HWND hPDlg;
 	HWND hWndListView;
 	LVITEMW item;
-	int	index, count;
+	int index, count;
 	WCHAR path[MAX_PATH];
 	WCHAR host[256];
 	WCHAR port[6];
@@ -446,6 +446,11 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 			EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKKSERV_ADD), FALSE);
 			EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_GOOGLECGIAPI_ADD), FALSE);
 		}
+		return (INT_PTR)TRUE;
+
+	case WM_DPICHANGED:
+		hWndListView = GetDlgItem(hDlg, IDC_LIST_SKK_DIC);
+		ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:

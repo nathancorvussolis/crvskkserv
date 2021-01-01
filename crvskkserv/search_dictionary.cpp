@@ -10,7 +10,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 	std::string sbuf;
 	FILE *fpdic;
 	long pos;
-	int okuri = -1;
+	int okuri = 0; // default okuri-nasi
 	MAP map;
 	size_t pidx;
 #if USEIDXFILE

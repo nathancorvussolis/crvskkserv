@@ -76,4 +76,9 @@
   <ItemGroup>
     <Text Include="..\README.TXT" />
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="crvskkserv.manifest">
+      <Filter>Resource Files</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>
