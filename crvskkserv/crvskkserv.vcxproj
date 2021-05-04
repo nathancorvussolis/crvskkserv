@@ -63,6 +63,10 @@
     <Manifest>
       <AdditionalManifestFiles>crvskkserv.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
+    <ResourceCompile>
+      <Culture>0x0411</Culture>
+      <AdditionalOptions>/c 65001</AdditionalOptions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -75,6 +79,7 @@
       <SDLCheck>true</SDLCheck>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -87,11 +92,17 @@
     <Manifest>
       <AdditionalManifestFiles>crvskkserv.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
+    <ResourceCompile>
+      <Culture>0x0411</Culture>
+      <AdditionalOptions>/c 65001</AdditionalOptions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="crvskkserv.h" />
     <ClInclude Include="eucjis2004.h" />
     <ClInclude Include="eucjis2004table.h" />
+    <ClInclude Include="eucjp.h" />
+    <ClInclude Include="eucjptable.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="utf8.h" />
@@ -100,6 +111,8 @@
     <ClCompile Include="crvskkserv.cpp" />
     <ClCompile Include="eucjis2004.cpp" />
     <ClCompile Include="eucjis2004table.cpp" />
+    <ClCompile Include="eucjp.cpp" />
+    <ClCompile Include="eucjptable.cpp" />
     <ClCompile Include="search_dictionary.cpp" />
     <ClCompile Include="search_google_cgiapi.cpp" />
     <ClCompile Include="search_skkserv.cpp" />

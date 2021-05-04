@@ -1,6 +1,7 @@
 ﻿
 #include "crvskkserv.h"
 #include "eucjis2004.h"
+#include "eucjp.h"
 #include "utf8.h"
 
 // https://www.google.co.jp/ime/cgiapi.html
@@ -34,18 +35,7 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	HINTERNET hInet;
 	HINTERNET hUrl;
 	WCHAR url[INTERNET_MAX_URL_LENGTH];
-	CHAR rbuf[RBUFSIZE];
-	std::string res;
-	BOOL retRead;
-	DWORD bytesRead = 0;
-	WCHAR pe[4];
-	size_t i;
-	std::wstring wjson, wjson_tmp, c;
-	std::wregex wreg;
-	std::wsmatch wres;
-	std::wstring wfmt;
 	std::wstring filter, annotation, timeout, encoding;
-	DWORD dwTimeout;
 	std::wstring wkey;
 	std::string ckey;
 
@@ -89,26 +79,32 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 		return;
 	}
 
-	dwTimeout = wcstoul(timeout.c_str(), nullptr, 0);
+	DWORD dwTimeout = wcstoul(timeout.c_str(), nullptr, 0);
 	if(dwTimeout == 0 || dwTimeout == ULONG_MAX)
 	{
 		dwTimeout = wcstoul(inival_def_timeout, nullptr, 0);
 	}
 
-	_snwprintf_s(url, _TRUNCATE, L"%s", googlecgiapi_url_prefix);
-
-	for(i = 0; i < ckey.size(); i++)
 	{
-		_snwprintf_s(pe, _TRUNCATE, L"%%%02X", (BYTE)ckey[i]);
-		wcsncat_s(url, pe, _TRUNCATE);
+		_snwprintf_s(url, _TRUNCATE, L"%s", googlecgiapi_url_prefix);
+
+		WCHAR pe[4];
+
+		for (size_t i = 0; i < ckey.size(); i++)
+		{
+			_snwprintf_s(pe, _TRUNCATE, L"%%%02X", (BYTE)ckey[i]);
+			wcsncat_s(url, pe, _TRUNCATE);
+		}
+
+		std::string suffix = wstring_to_utf8_string(std::wstring(googlecgiapi_url_suffix));
+		for (size_t i = 0; i < suffix.size(); i++)
+		{
+			_snwprintf_s(pe, _TRUNCATE, L"%%%02X", (BYTE)suffix[i]);
+			wcsncat_s(url, pe, _TRUNCATE);
+		}
 	}
 
-	std::string suffix = wstring_to_utf8_string(std::wstring(googlecgiapi_url_suffix));
-	for(i = 0; i < suffix.size(); i++)
-	{
-		_snwprintf_s(pe, _TRUNCATE, L"%%%02X", (BYTE)suffix[i]);
-		wcsncat_s(url, pe, _TRUNCATE);
-	}
+	std::string res;
 
 	hInet = InternetOpenW(useragent, INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, 0);
 	if(hInet != nullptr)
@@ -120,10 +116,13 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 		hUrl = InternetOpenUrlW(hInet, url, nullptr, 0, 0, 0);
 		if(hUrl != nullptr)
 		{
+			CHAR rbuf[RBUFSIZE];
+
 			while(true)
 			{
+				DWORD bytesRead = 0;
 				ZeroMemory(rbuf, sizeof(rbuf));
-				retRead = InternetReadFile(hUrl, rbuf, sizeof(rbuf) - 1, &bytesRead);
+				BOOL retRead = InternetReadFile(hUrl, rbuf, sizeof(rbuf) - 1, &bytesRead);
 				if(retRead)
 				{
 					if(bytesRead == 0) break;
@@ -142,7 +141,11 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 		InternetCloseHandle(hInet);
 	}
 
-	wjson = utf8_string_to_wstring(res);
+	std::wstring wjson = utf8_string_to_wstring(res);
+
+	std::wregex wreg;
+	std::wstring wfmt;
+	std::wsmatch wres;
 
 	//エスケープシーケンス 制御文字
 	wreg = L"\\\\[bfnrt]";
@@ -171,11 +174,11 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 
 	//各要素
 	wreg = L"\".+?\"";
-	wjson_tmp = wjson;
+	std::wstring wjson_tmp = wjson;
 	wjson = L"/";
 	while(std::regex_search(wjson_tmp, wres, wreg))
 	{
-		c = wres.str().substr(1, wres.str().size() - 2);
+		std::wstring c = wres.str().substr(1, wres.str().size() - 2);
 		if(c.find_first_of(L"/") != std::wstring::npos ||
 			c.find_first_of(L";") != std::wstring::npos)
 		{
@@ -226,7 +229,12 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	{
 		if(encoding == inival_googlecgiapi_encoding_euc)
 		{
-			s += wstring_to_eucjis2004_string(wres.str());
+			std::string c = wstring_to_eucjis2004_string(wres.str());
+			if (c.empty())
+			{
+				c = wstring_to_eucjp_string(wres.str());
+			}
+			s += c;
 		}
 		else if(encoding == inival_googlecgiapi_encoding_utf8)
 		{

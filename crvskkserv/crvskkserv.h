@@ -1,13 +1,13 @@
 ﻿#pragma once
 
 #define RC_PRODUCT		"crvskkserv"
-#define RC_VERSION		"2.4.0"
-#define RC_VERSION_D	2,4,0,0
-#define RC_TITLE		"crvskkserv (ver. 2.4.0)"
+#define RC_VERSION		"2.5.0"
+#define RC_VERSION_D	2,5,0,0
+#define RC_TITLE		"crvskkserv (ver. 2.5.0)"
 #define RC_AUTHOR		"nathancorvussolis"
 
 #define APP_TITLE		L"crvskkserv"
-#define APP_VERSION		L"2.4.0"
+#define APP_VERSION		L"2.5.0"
 #define RES_VER RC_PRODUCT "/" RC_VERSION " "
 
 #define REQ_END		'0'
@@ -24,7 +24,7 @@
 #define INIVAL_GOOGLECGIAPI	L"googlecgiapi"
 #define INIVAL_SVR_SEP		L'/'
 
-#define DICBUFSIZE	0x1000
+#define DICBUFSIZE	0x200
 #define RBUFSIZE	0x800
 
 #define WM_TASKBARICON_0	(WM_USER + 1)
@@ -47,8 +47,8 @@ typedef std::vector<DICINFO> VDICINFO;
 
 extern LPCSTR EntriesAri;
 extern LPCSTR EntriesNasi;
-extern LPCWSTR RB;
-extern LPCWSTR WB;
+extern LPCWSTR modeRB;
+extern LPCWSTR modeWB;
 
 extern LPCWSTR title;
 extern LPCSTR resver;

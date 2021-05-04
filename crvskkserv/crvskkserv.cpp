@@ -33,8 +33,8 @@ LPCWSTR inival_googlecgiapi_encoding_euc = L"euc";
 LPCWSTR inival_googlecgiapi_encoding_utf8 = L"utf-8";
 LPCSTR EntriesAri = ";; okuri-ari entries.\n";
 LPCSTR EntriesNasi = ";; okuri-nasi entries.\n";
-LPCWSTR RB = L"rb";
-LPCWSTR WB = L"wb";
+LPCWSTR modeRB = L"rb";
+LPCWSTR modeWB = L"wb";
 
 void GetIniFileName(LPWSTR ini, size_t len);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -459,7 +459,7 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 		switch(LOWORD(wParam))
 		{
 		case IDOK:
-			_wfopen_s(&fp, ini, WB);
+			_wfopen_s(&fp, ini, modeWB);
 			if(fp != nullptr)
 			{
 				fwrite("\xFF\xFE", 2, 1, fp);
