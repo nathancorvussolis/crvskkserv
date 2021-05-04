@@ -119,6 +119,12 @@ void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s)
 			break;
 		}
 
+		// LF
+		if (sbuf.back() != '\n')
+		{
+			sbuf.push_back('\n');
+		}
+
 		size_t cidx = sbuf.find("\x20/");
 		if(cidx != std::wstring::npos && cidx < sbuf.size())
 		{
