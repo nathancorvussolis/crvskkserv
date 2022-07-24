@@ -39,16 +39,17 @@ LPCWSTR modeWB = L"wb";
 void GetIniFileName(LPWSTR ini, size_t len);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	MSG msg;
-	WNDCLASSEXW wcex;
+	WNDCLASSEXW wcex = {};
 	HWND hWnd;
 	WSADATA wsaData;
-	INITCOMMONCONTROLSEX icex;
+	int wsa = -1;
+	INITCOMMONCONTROLSEX icex = {};
 
 	_wsetlocale(LC_ALL, L"ja-JP");
 
@@ -56,7 +57,21 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdL
 	icex.dwICC = ICC_LISTVIEW_CLASSES;
 	InitCommonControlsEx(&icex);
 
-	WSAStartup(WINSOCK_VERSION, &wsaData);
+	wsa = WSAStartup(WINSOCK_VERSION, &wsaData);
+	switch (wsa)
+	{
+	case 0:
+		//success
+		break;
+	case WSASYSNOTREADY:
+	case WSAVERNOTSUPPORTED:
+	case WSAEINPROGRESS:
+	case WSAEPROCLIM:
+	case WSAEFAULT:
+	default:
+		//error
+		break;
+	}
 
 	GetIniFileName(ini, _countof(ini));
 
@@ -88,6 +103,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdL
 	//ShowWindow(hWnd, nCmdShow);
 	//UpdateWindow(hWnd);
 
+#pragma warning(push)
+#pragma warning(disable:6387)
 	while(GetMessageW(&msg, nullptr, 0, 0))
 	{
 		if(!TranslateAcceleratorW(msg.hwnd, nullptr, &msg))
@@ -96,22 +113,23 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdL
 			DispatchMessageW(&msg);
 		}
 	}
+#pragma warning(pop)
 
 	WSACleanup();
 
 	return (int)msg.wParam;
 }
 
-void GetIniFileName(LPWSTR ini, size_t len)
+void GetIniFileName(LPWSTR inifile, size_t len)
 {
-	WCHAR drive[_MAX_DRIVE];
-	WCHAR dir[_MAX_DIR];
-	WCHAR fname[_MAX_FNAME];
-	WCHAR ext[_MAX_EXT];
+	WCHAR drive[_MAX_DRIVE] = {};
+	WCHAR dir[_MAX_DIR] = {};
+	WCHAR fname[_MAX_FNAME] = {};
+	WCHAR ext[_MAX_EXT] = {};
 
-	GetModuleFileNameW(nullptr, ini, len);
-	_wsplitpath_s(ini, drive, dir, fname, ext);
-	_wmakepath_s(ini, len, drive, dir, fname, L"ini");
+	GetModuleFileNameW(nullptr, inifile, len);
+	_wsplitpath_s(inifile, drive, dir, fname, ext);
+	_wmakepath_s(inifile, len, drive, dir, fname, L"ini");
 }
 
 void AddTaskbarIcon(HWND hWnd)
@@ -216,7 +234,7 @@ INT_PTR CALLBACK DlgProcSKKServ(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 {
 	static HWND hPDlg;
 	HWND hWndListView;
-	LVITEMW item;
+	LVITEMW item = {};
 	int index, count;
 	WCHAR path[MAX_PATH];
 	WCHAR host[256];
@@ -298,7 +316,7 @@ INT_PTR CALLBACK DlgProcGoogleCGIAPI(HWND hDlg, UINT message, WPARAM wParam, LPA
 {
 	static HWND hPDlg;
 	HWND hWndListView;
-	LVITEMW item;
+	LVITEMW item = {};
 	int	index, count;
 	WCHAR path[MAX_PATH];
 	WCHAR encoding[8];
@@ -394,12 +412,12 @@ INT_PTR CALLBACK DlgProcGoogleCGIAPI(HWND hDlg, UINT message, WPARAM wParam, LPA
 INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	HWND hWndListView;
-	LV_COLUMNW lvc;
-	LVITEMW item;
+	LV_COLUMNW lvc = {};
+	LVITEMW item = {};
 	OPENFILENAMEW ofn;
-	WCHAR path[MAX_PATH];
-	WCHAR pathBak[MAX_PATH];
-	int	index, count;
+	WCHAR path[MAX_PATH] = {};
+	WCHAR pathBak[MAX_PATH] = {};
+	int index, count;
 	VDICINFO::iterator vdicinfo_itr;
 	WCHAR key[8];
 	FILE *fp;

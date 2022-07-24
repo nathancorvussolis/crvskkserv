@@ -10,22 +10,22 @@ void init_search_dictionary(DICINFO &dicinfo)
 
 	FILE *fpdic = nullptr;
 	_wfopen_s(&fpdic, dicinfo.path.c_str(), modeRB);
-	if(fpdic == nullptr)
+	if (fpdic == nullptr)
 	{
 		return;
 	}
 
 	long pos = ftell(fpdic);
 
-	while(true)
+	while (true)
 	{
 		sbuf.clear();
 
-		while(fgets(buf, sizeof(buf), fpdic) != nullptr)
+		while (fgets(buf, sizeof(buf), fpdic) != nullptr)
 		{
 			sbuf += buf;
 
-			if(!sbuf.empty() && sbuf.back() == '\n')
+			if (!sbuf.empty() && sbuf.back() == '\n')
 			{
 				break;
 			}
@@ -37,23 +37,23 @@ void init_search_dictionary(DICINFO &dicinfo)
 			return;
 		}
 
-		if(sbuf.empty())
+		if (sbuf.empty())
 		{
 			break;
 		}
 
-		if(sbuf.compare(EntriesAri) == 0)
+		if (sbuf.compare(EntriesAri) == 0)
 		{
 			okuri = 1;
 		}
-		else if(sbuf.compare(EntriesNasi) == 0)
+		else if (sbuf.compare(EntriesNasi) == 0)
 		{
 			okuri = 0;
 		}
-		else if(okuri != -1)
+		else if (okuri != -1)
 		{
 			size_t pidx = sbuf.find("\x20/");
-			if(pidx != std::string::npos && pidx <= sbuf.size())
+			if (pidx != std::string::npos && pidx <= sbuf.size())
 			{
 				map.insert(PAIR(sbuf.substr(0, pidx), pos));
 			}
@@ -65,7 +65,7 @@ void init_search_dictionary(DICINFO &dicinfo)
 	fclose(fpdic);
 
 	dicinfo.pos.clear();
-	for(auto map_itr = map.begin(); map_itr != map.end(); map_itr++)
+	for (auto map_itr = map.begin(); map_itr != map.end(); map_itr++)
 	{
 		dicinfo.pos.push_back(map_itr->second);
 	}
@@ -78,7 +78,7 @@ void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s)
 
 	FILE *fpdic = nullptr;
 	_wfopen_s(&fpdic, dicinfo.path.c_str(), modeRB);
-	if(fpdic == nullptr)
+	if (fpdic == nullptr)
 	{
 		return;
 	}
@@ -88,7 +88,7 @@ void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s)
 	long left = 0;
 	long right = (long)dicinfo.pos.size() - 1;
 
-	while(left <= right)
+	while (left <= right)
 	{
 		long mid = left + (right - left) / 2;
 		long pos = dicinfo.pos[mid];
@@ -98,11 +98,11 @@ void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s)
 		kbuf.clear();
 		cbuf.clear();
 
-		while(fgets(buf, _countof(buf), fpdic) != nullptr)
+		while (fgets(buf, _countof(buf), fpdic) != nullptr)
 		{
 			sbuf += buf;
 
-			if(!sbuf.empty() && sbuf.back() == '\n')
+			if (!sbuf.empty() && sbuf.back() == '\n')
 			{
 				break;
 			}
@@ -126,19 +126,19 @@ void search_dictionary(DICINFO &dicinfo, const std::string &key, std::string &s)
 		}
 
 		size_t cidx = sbuf.find("\x20/");
-		if(cidx != std::wstring::npos && cidx < sbuf.size())
+		if (cidx != std::wstring::npos && cidx < sbuf.size())
 		{
 			kbuf = sbuf.substr(0, cidx + 1);
 			cbuf = sbuf.substr(cidx + 1);
 		}
 
 		int cmpkey = ckey.compare(kbuf);
-		if(cmpkey == 0)
+		if (cmpkey == 0)
 		{
 			s = cbuf;
 			break;
 		}
-		else if(cmpkey > 0)
+		else if (cmpkey > 0)
 		{
 			left = mid + 1;
 		}

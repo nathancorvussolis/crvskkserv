@@ -8,6 +8,7 @@
 
 #define APP_TITLE		L"crvskkserv"
 #define APP_VERSION		L"2.5.1"
+
 #define RES_VER RC_PRODUCT "/" RC_VERSION " "
 
 #define REQ_END		'0'
@@ -29,7 +30,7 @@
 
 #define WM_TASKBARICON_0	(WM_USER + 1)
 
-typedef struct {
+typedef struct _SERVINFO {
 	BOOL live;
 	SOCKET sock;
 } SERVINFO;
@@ -38,10 +39,10 @@ typedef std::pair<std::string, long> PAIR;
 typedef std::map<std::string, long> MAP;
 
 typedef std::vector<long> POS;
-typedef struct {
+typedef struct _DICINFO {
 	std::wstring path;
 	POS pos;
-	SOCKET sock;
+	SOCKET sock{};
 } DICINFO;
 typedef std::vector<DICINFO> VDICINFO;
 

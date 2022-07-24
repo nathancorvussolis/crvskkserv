@@ -7,29 +7,29 @@ void search_skkserv(DICINFO &dicinfo, const std::string &key, std::string &s)
 	CHAR rbuf[RBUFSIZE];
 	int n;
 
-	if(dicinfo.sock == INVALID_SOCKET)
+	if (dicinfo.sock == INVALID_SOCKET)
 	{
 		connect_skkserv(dicinfo);
 	}
 
-	if(!get_skkserv_version(dicinfo.sock))
+	if (!get_skkserv_version(dicinfo.sock))
 	{
 		return;
 	}
 
 	ckey.push_back(REQ_KEY);
 	ckey += key + "\x20";
-	if(send(dicinfo.sock, ckey.c_str(), ckey.size(), 0) == SOCKET_ERROR)
+	if (send(dicinfo.sock, ckey.c_str(), ckey.size(), 0) == SOCKET_ERROR)
 	{
 		disconnect(dicinfo.sock);
 		return;
 	}
 
-	while(true)
+	while (true)
 	{
 		ZeroMemory(rbuf, sizeof(rbuf));
 		n = recv(dicinfo.sock, rbuf, sizeof(rbuf) - 1, 0);
-		if(n == SOCKET_ERROR || n <= 0)
+		if (n == SOCKET_ERROR || n <= 0)
 		{
 			disconnect(dicinfo.sock);
 			return;
@@ -37,13 +37,13 @@ void search_skkserv(DICINFO &dicinfo, const std::string &key, std::string &s)
 
 		res.append(rbuf);
 
-		if(n <= _countof(rbuf) && rbuf[n - 1] == '\n')
+		if (n <= _countof(rbuf) && rbuf[n - 1] == '\n')
 		{
 			break;
 		}
 	}
 
-	if(res.size() > 2 && res.front() == REP_FOUND)
+	if (res.size() > 2 && res.front() == REP_FOUND)
 	{
 		s = res.substr(1);
 	}
@@ -74,15 +74,15 @@ void connect_skkserv(DICINFO &dicinfo)
 	ADDRINFOW *paiwResult;
 	ADDRINFOW *paiw;
 	u_long mode;
-	timeval tv;
-	fd_set fdw, fde;
+	timeval tv = {};
+	fd_set fdw = {}, fde = {};
 	std::wstring host, port, timeout;
 	DWORD dwTimeout;
 
 	split_skkserv_path(dicinfo, host, port, timeout);
 
 	dwTimeout = wcstoul(timeout.c_str(), nullptr, 0);
-	if(dwTimeout == 0 || dwTimeout == ULONG_MAX)
+	if (dwTimeout == 0 || dwTimeout == ULONG_MAX)
 	{
 		dwTimeout = wcstoul(inival_def_timeout, nullptr, 0);
 	}
@@ -92,26 +92,26 @@ void connect_skkserv(DICINFO &dicinfo)
 	aiwHints.ai_socktype = SOCK_STREAM;
 	aiwHints.ai_protocol = IPPROTO_TCP;
 
-	if(GetAddrInfoW(host.c_str(), port.c_str(), &aiwHints, &paiwResult) != 0)
+	if (GetAddrInfoW(host.c_str(), port.c_str(), &aiwHints, &paiwResult) != 0)
 	{
 		return;
 	}
 
-	for(paiw = paiwResult; paiw != nullptr; paiw = paiw->ai_next)
+	for (paiw = paiwResult; paiw != nullptr; paiw = paiw->ai_next)
 	{
-		dicinfo.sock = socket(paiw->ai_family, paiw->ai_socktype, paiw->ai_protocol); 
-		if(dicinfo.sock == INVALID_SOCKET)
+		dicinfo.sock = socket(paiw->ai_family, paiw->ai_socktype, paiw->ai_protocol);
+		if (dicinfo.sock == INVALID_SOCKET)
 		{
 			continue;
 		}
 
-		if(setsockopt(dicinfo.sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&dwTimeout, sizeof(dwTimeout)) == SOCKET_ERROR)
+		if (setsockopt(dicinfo.sock, SOL_SOCKET, SO_SNDTIMEO, (const char *)&dwTimeout, sizeof(dwTimeout)) == SOCKET_ERROR)
 		{
 			closesocket(dicinfo.sock);
 			dicinfo.sock = INVALID_SOCKET;
 			continue;
 		}
-		if(setsockopt(dicinfo.sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&dwTimeout, sizeof(dwTimeout)) == SOCKET_ERROR)
+		if (setsockopt(dicinfo.sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&dwTimeout, sizeof(dwTimeout)) == SOCKET_ERROR)
 		{
 			closesocket(dicinfo.sock);
 			dicinfo.sock = INVALID_SOCKET;
@@ -121,9 +121,9 @@ void connect_skkserv(DICINFO &dicinfo)
 		mode = 1;
 		ioctlsocket(dicinfo.sock, FIONBIO, &mode);
 
-		if(connect(dicinfo.sock, paiw->ai_addr, (int)paiw->ai_addrlen) == SOCKET_ERROR)
+		if (connect(dicinfo.sock, paiw->ai_addr, (int)paiw->ai_addrlen) == SOCKET_ERROR)
 		{
-			if(WSAGetLastError() != WSAEWOULDBLOCK)
+			if (WSAGetLastError() != WSAEWOULDBLOCK)
 			{
 				closesocket(dicinfo.sock);
 				dicinfo.sock = INVALID_SOCKET;
@@ -143,7 +143,7 @@ void connect_skkserv(DICINFO &dicinfo)
 		FD_SET(dicinfo.sock, &fde);
 
 		select(0, nullptr, &fdw, &fde, &tv);
-		if(FD_ISSET(dicinfo.sock, &fdw))
+		if (FD_ISSET(dicinfo.sock, &fdw))
 		{
 			break;
 		}
@@ -162,25 +162,25 @@ BOOL get_skkserv_version(SOCKET &sock)
 	CHAR sbuf = REQ_VER;
 	std::string res;
 
-	if(send(sock, &sbuf, 1, 0) == SOCKET_ERROR)
+	if (send(sock, &sbuf, 1, 0) == SOCKET_ERROR)
 	{
 		disconnect(sock);
 		bRet = FALSE;
 	}
 	else
 	{
-		while(true)
+		while (true)
 		{
 			ZeroMemory(rbuf, sizeof(rbuf));
 			n = recv(sock, rbuf, sizeof(rbuf) - 1, 0);
-			if(n == SOCKET_ERROR || n <= 0)
+			if (n == SOCKET_ERROR || n <= 0)
 			{
 				disconnect(sock);
 				bRet = FALSE;
 				break;
 			}
 
-			if(rbuf[n - 1] == '\x20')
+			if (rbuf[n - 1] == '\x20')
 			{
 				break;
 			}

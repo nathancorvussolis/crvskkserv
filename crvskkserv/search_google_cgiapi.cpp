@@ -43,20 +43,20 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	split_google_cgiapi_path(dicinfo, filter, annotation, timeout, encoding);
 
 	//文字コードチェック、UTF-8変換
-	if(encoding == inival_googlecgiapi_encoding_euc)
+	if (encoding == inival_googlecgiapi_encoding_euc)
 	{
 		wkey = eucjis2004_string_to_wstring(key);
-		if(wkey.empty())
+		if (wkey.empty())
 		{
 			return;
 		}
 		ckey = wstring_to_utf8_string(wkey);
 	}
-	else if(encoding == inival_googlecgiapi_encoding_utf8)
+	else if (encoding == inival_googlecgiapi_encoding_utf8)
 	{
 		ckey = key;
 		wkey = utf8_string_to_wstring(ckey);
-		if(wkey.empty())
+		if (wkey.empty())
 		{
 			return;
 		}
@@ -69,18 +69,18 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	//検索除外
 	try
 	{
-		if(std::regex_match(wkey, std::wregex(filter)))
+		if (std::regex_match(wkey, std::wregex(filter)))
 		{
 			return;
 		}
 	}
-	catch(...)
+	catch (...)
 	{
 		return;
 	}
 
 	DWORD dwTimeout = wcstoul(timeout.c_str(), nullptr, 0);
-	if(dwTimeout == 0 || dwTimeout == ULONG_MAX)
+	if (dwTimeout == 0 || dwTimeout == ULONG_MAX)
 	{
 		dwTimeout = wcstoul(inival_def_timeout, nullptr, 0);
 	}
@@ -107,25 +107,25 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	std::string res;
 
 	hInet = InternetOpenW(useragent, INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, 0);
-	if(hInet != nullptr)
+	if (hInet != nullptr)
 	{
 		InternetSetOptionW(hInet, INTERNET_OPTION_CONNECT_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 		InternetSetOptionW(hInet, INTERNET_OPTION_SEND_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 		InternetSetOptionW(hInet, INTERNET_OPTION_RECEIVE_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 
 		hUrl = InternetOpenUrlW(hInet, url, nullptr, 0, 0, 0);
-		if(hUrl != nullptr)
+		if (hUrl != nullptr)
 		{
 			CHAR rbuf[RBUFSIZE];
 
-			while(true)
+			while (true)
 			{
 				DWORD bytesRead = 0;
 				ZeroMemory(rbuf, sizeof(rbuf));
 				BOOL retRead = InternetReadFile(hUrl, rbuf, sizeof(rbuf) - 1, &bytesRead);
-				if(retRead)
+				if (retRead)
 				{
-					if(bytesRead == 0) break;
+					if (bytesRead == 0) break;
 				}
 				else
 				{
@@ -176,10 +176,10 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	wreg = L"\".+?\"";
 	std::wstring wjson_tmp = wjson;
 	wjson = L"/";
-	while(std::regex_search(wjson_tmp, wres, wreg))
+	while (std::regex_search(wjson_tmp, wres, wreg))
 	{
 		std::wstring c = wres.str().substr(1, wres.str().size() - 2);
-		if(c.find_first_of(L"/") != std::wstring::npos ||
+		if (c.find_first_of(L"/") != std::wstring::npos ||
 			c.find_first_of(L";") != std::wstring::npos)
 		{
 			wreg = L"/";
@@ -191,7 +191,7 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 			c = L"(concat \"" + c + L"\")";
 		}
 
-		if(!annotation.empty())
+		if (!annotation.empty())
 		{
 			c += L";" + annotation;
 		}
@@ -204,11 +204,11 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 	wreg = L"\\\\u[0-9A-F]{4}";
 	wjson_tmp = wjson;
 	wjson.clear();
-	while(std::regex_search(wjson_tmp, wres, wreg))
+	while (std::regex_search(wjson_tmp, wres, wreg))
 	{
 		wjson.append(wres.prefix());
 		WCHAR ch = (WCHAR)wcstoul(wres.str().substr(2).c_str(), nullptr, 16);
-		if(ch != L'\0')
+		if (ch != L'\0')
 		{
 			wjson.push_back(ch);
 		}
@@ -225,9 +225,9 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 
 	wjson_tmp = wjson;
 	wreg = L"/[^/]+";
-	while(std::regex_search(wjson_tmp, wres, wreg))
+	while (std::regex_search(wjson_tmp, wres, wreg))
 	{
-		if(encoding == inival_googlecgiapi_encoding_euc)
+		if (encoding == inival_googlecgiapi_encoding_euc)
 		{
 			std::string c = wstring_to_eucjis2004_string(wres.str());
 			if (c.empty())
@@ -236,7 +236,7 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 			}
 			s += c;
 		}
-		else if(encoding == inival_googlecgiapi_encoding_utf8)
+		else if (encoding == inival_googlecgiapi_encoding_utf8)
 		{
 			s += wstring_to_utf8_string(wres.str());
 		}

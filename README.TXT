@@ -26,8 +26,8 @@ SKK辞書サーバ通信は、IPv4、IPv6に対応しています。
 
 Google CGI APIの「見出し語の検索除外条件」設定は、おそらく送りあり(と思われる)
 見出し語を除外する正規表現がデフォルトとなっています。
-Visual C++ 2019 の正規表現で、文法はECMAScriptを使用しています。
-https://docs.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp?view=msvc-160
+Visual C++ 2022 の正規表現で、文法はECMAScriptを使用しています。
+https://docs.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp?view=msvc-170
 
 Google CGI APIの設定でクライアントの文字コードをEUC-JIS-2004にしたとき、
 UTF-8からEUC-JIS-2004に変換できない文字を含む候補はEUC-JPにフォールバックされます。
@@ -80,7 +80,7 @@ crvskkserv
 
 The MIT License
 
-Copyright (C) 2012-2021 SASAKI Nobuyuki
+Copyright (C) 2012-2022 SASAKI Nobuyuki
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),
