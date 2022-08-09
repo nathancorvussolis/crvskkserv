@@ -134,7 +134,7 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 					return;
 				}
 
-				res.append(rbuf);
+				res.append(rbuf, bytesRead);
 			}
 			InternetCloseHandle(hUrl);
 		}
