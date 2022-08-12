@@ -3,6 +3,7 @@
 #include "eucjis2004.h"
 #include "eucjp.h"
 #include "utf8.h"
+#include "picojson.h"
 
 // https://www.google.co.jp/ime/cgiapi.html
 
@@ -32,8 +33,6 @@ void split_google_cgiapi_path(DICINFO &dicinfo, std::wstring &filter, std::wstri
 
 void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string &s)
 {
-	HINTERNET hInet;
-	HINTERNET hUrl;
 	WCHAR url[INTERNET_MAX_URL_LENGTH];
 	std::wstring filter, annotation, timeout, encoding;
 	std::wstring wkey;
@@ -106,14 +105,14 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 
 	std::string res;
 
-	hInet = InternetOpenW(useragent, INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, 0);
+	HINTERNET hInet = InternetOpenW(useragent, INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, 0);
 	if (hInet != nullptr)
 	{
 		InternetSetOptionW(hInet, INTERNET_OPTION_CONNECT_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 		InternetSetOptionW(hInet, INTERNET_OPTION_SEND_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 		InternetSetOptionW(hInet, INTERNET_OPTION_RECEIVE_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 
-		hUrl = InternetOpenUrlW(hInet, url, nullptr, 0, 0, 0);
+		HINTERNET hUrl = InternetOpenUrlW(hInet, url, nullptr, 0, 0, 0);
 		if (hUrl != nullptr)
 		{
 			CHAR rbuf[RBUFSIZE];
@@ -141,44 +140,66 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 		InternetCloseHandle(hInet);
 	}
 
-	std::wstring wjson = utf8_string_to_wstring(res);
+	std::vector<std::wstring> vws;
+
+	// Example
+	// [["こうし",["講師","格子","行使","公私","こうし"]]]
+
+	picojson::value json_value;
+	const std::string json_err = picojson::parse(json_value, res);
+
+	if (json_err.empty())
+	{
+		if (json_value.is<picojson::array>())
+		{
+			const picojson::array &json_array_1 = json_value.get<picojson::array>();
+
+			for (const auto &json_value_1 : json_array_1)
+			{
+				if (json_value_1.is<picojson::array>())
+				{
+					const picojson::array &json_array_2 = json_value_1.get<picojson::array>();
+
+					bool key_hit = false;
+
+					for (const auto &json_value_2 : json_array_2)
+					{
+						if (json_value_2.is<std::string>())
+						{
+							// key
+							key_hit = (json_value_2.get<std::string>() == wstring_to_utf8_string(wkey));
+						}
+						else if (json_value_2.is<picojson::array>())
+						{
+							const picojson::array &json_array_3 = json_value_2.get<picojson::array>();
+
+							for (const auto &json_value_3 : json_array_3)
+							{
+								if (key_hit && json_value_3.is<std::string>())
+								{
+									// entry
+									vws.push_back(utf8_string_to_wstring(json_value_3.get<std::string>()));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
 	std::wregex wreg;
 	std::wstring wfmt;
 	std::wsmatch wres;
 
-	//エスケープシーケンス 制御文字
-	wreg = L"\\\\[bfnrt]";
-	wfmt = L"";
-	wjson = std::regex_replace(wjson, wreg, wfmt);
-
-	//エスケープシーケンス バックスラッシュ
-	wreg = L"\\\\\\\\";
-	wfmt = L"\\u005C";
-	wjson = std::regex_replace(wjson, wreg, wfmt);
-
-	//エスケープシーケンス スラッシュ
-	wreg = L"\\\\/";
-	wfmt = L"\\u002F";
-	wjson = std::regex_replace(wjson, wreg, wfmt);
-
-	//エスケープシーケンス ダブルクォーテーション
-	wreg = L"\\\\\"";
-	wfmt = L"\\u0022";
-	wjson = std::regex_replace(wjson, wreg, wfmt);
-
-	//角括弧
-	wreg = L"\\[\\[.+,\\[(.+)\\]\\]\\]";
-	wfmt = L"$1";
-	wjson = std::regex_replace(wjson, wreg, wfmt);
-
-	//各要素
-	wreg = L"\".+?\"";
-	std::wstring wjson_tmp = wjson;
-	wjson = L"/";
-	while (std::regex_search(wjson_tmp, wres, wreg))
+	std::wstring ws = L"/";
+	for (std::wstring &c : vws)
 	{
-		std::wstring c = wres.str().substr(1, wres.str().size() - 2);
+		// 制御文字
+		wreg = L"[\\x00-\\x19]";
+		wfmt = L"";
+		c = std::regex_replace(c, wreg, wfmt);
+
 		if (c.find_first_of(L"/") != std::wstring::npos ||
 			c.find_first_of(L";") != std::wstring::npos)
 		{
@@ -188,44 +209,22 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 			wreg = L";";
 			wfmt = L"\\073";
 			c = std::regex_replace(c, wreg, wfmt);
+
 			c = L"(concat \"" + c + L"\")";
 		}
 
+		ws += c;
 		if (!annotation.empty())
 		{
-			c += L";" + annotation;
+			ws += L";" + annotation;
 		}
-		wjson += c + L"/";
-
-		wjson_tmp = wres.suffix();
+		ws += L"/";
 	}
+	ws += L"\n";
 
-	//エスケープシーケンス Unicode
-	wreg = L"\\\\u[0-9A-F]{4}";
-	wjson_tmp = wjson;
-	wjson.clear();
-	while (std::regex_search(wjson_tmp, wres, wreg))
-	{
-		wjson.append(wres.prefix());
-		WCHAR ch = (WCHAR)wcstoul(wres.str().substr(2).c_str(), nullptr, 16);
-		if (ch != L'\0')
-		{
-			wjson.push_back(ch);
-		}
-		wjson_tmp = wres.suffix();
-	}
-	wjson.append(wjson_tmp);
-
-	//制御文字
-	wreg = L"[\\x00-\\x19]";
-	wfmt = L"";
-	wjson = std::regex_replace(wjson, wreg, wfmt);
-
-	wjson += L"\n";
-
-	wjson_tmp = wjson;
+	std::wstring ws_tmp = ws;
 	wreg = L"/[^/]+";
-	while (std::regex_search(wjson_tmp, wres, wreg))
+	while (std::regex_search(ws_tmp, wres, wreg))
 	{
 		if (encoding == inival_googlecgiapi_encoding_euc)
 		{
@@ -240,6 +239,6 @@ void search_google_cgiapi(DICINFO &dicinfo, const std::string &key, std::string 
 		{
 			s += wstring_to_utf8_string(wres.str());
 		}
-		wjson_tmp = wres.suffix();
+		ws_tmp = wres.suffix();
 	}
 }

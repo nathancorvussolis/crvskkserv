@@ -203,6 +203,7 @@
     <ClInclude Include="eucjis2004table.h" />
     <ClInclude Include="eucjp.h" />
     <ClInclude Include="eucjptable.h" />
+    <ClInclude Include="picojson.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="utf8.h" />

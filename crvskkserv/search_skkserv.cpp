@@ -19,7 +19,7 @@ void search_skkserv(DICINFO &dicinfo, const std::string &key, std::string &s)
 
 	ckey.push_back(REQ_KEY);
 	ckey += key + "\x20";
-	if (send(dicinfo.sock, ckey.c_str(), ckey.size(), 0) == SOCKET_ERROR)
+	if (send(dicinfo.sock, ckey.c_str(), (int)ckey.size(), 0) == SOCKET_ERROR)
 	{
 		disconnect(dicinfo.sock);
 		return;

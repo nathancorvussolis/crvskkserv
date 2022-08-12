@@ -127,7 +127,7 @@ void GetIniFileName(LPWSTR inifile, size_t len)
 	WCHAR fname[_MAX_FNAME] = {};
 	WCHAR ext[_MAX_EXT] = {};
 
-	GetModuleFileNameW(nullptr, inifile, len);
+	GetModuleFileNameW(nullptr, inifile, (DWORD)len);
 	_wsplitpath_s(inifile, drive, dir, fname, ext);
 	_wmakepath_s(inifile, len, drive, dir, fname, L"ini");
 }
