@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #define RC_PRODUCT		"crvskkserv"
-#define RC_VERSION		"2.5.1"
-#define RC_VERSION_D	2,5,1,0
-#define RC_TITLE		"crvskkserv (ver. 2.5.1)"
+#define RC_VERSION		"2.5.6"
+#define RC_VERSION_D	2,5,6,0
+#define RC_TITLE		"crvskkserv (ver. 2.5.6)"
 #define RC_AUTHOR		"nathancorvussolis"
 
 #define APP_TITLE		L"crvskkserv"
