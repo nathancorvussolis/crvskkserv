@@ -157,6 +157,7 @@
       <AdditionalDependencies>ws2_32.lib;wininet.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <CETCompat>true</CETCompat>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>crvskkserv.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -188,6 +189,7 @@
       <AdditionalDependencies>ws2_32.lib;wininet.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <CETCompat>true</CETCompat>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>crvskkserv.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
