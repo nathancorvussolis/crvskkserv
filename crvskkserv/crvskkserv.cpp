@@ -79,23 +79,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= WndProc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIconW(hInstance, MAKEINTRESOURCE(IDI_CRVSKKSERV));
-	wcex.hCursor		= LoadCursorW(nullptr, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= nullptr;
-	wcex.lpszClassName	= title;
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_CRVSKKSERV));
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_CRVSKKSERV));
+	wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = nullptr;
+	wcex.lpszClassName = title;
+	wcex.hIconSm = LoadIconW(wcex.hInstance, MAKEINTRESOURCE(IDI_CRVSKKSERV));
 
 	RegisterClassExW(&wcex);
 
 	hWnd = CreateWindowW(title, title, WS_OVERLAPPEDWINDOW, 0, 0, 320, 200, nullptr, nullptr, hInstance, nullptr);
 
-	if(!hWnd)
+	if (!hWnd)
 	{
 		return 0;
 	}
@@ -103,17 +103,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//ShowWindow(hWnd, nCmdShow);
 	//UpdateWindow(hWnd);
 
-#pragma warning(push)
-#pragma warning(disable:6387)
-	while(GetMessageW(&msg, nullptr, 0, 0))
+	while (GetMessageW(&msg, nullptr, 0, 0))
 	{
-		if(!TranslateAcceleratorW(msg.hwnd, nullptr, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessageW(&msg);
-		}
+		TranslateMessage(&msg);
+		DispatchMessageW(&msg);
 	}
-#pragma warning(pop)
 
 	WSACleanup();
 
@@ -137,11 +131,11 @@ void AddTaskbarIcon(HWND hWnd)
 	ZeroMemory(&nid, sizeof(nid));
 	nid.cbSize = sizeof(nid);
 	nid.hWnd = hWnd;
-	nid.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_CRVSKKSERV));
+	nid.hIcon = LoadIconW(hInst, MAKEINTRESOURCE(IDI_CRVSKKSERV));
 	nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
 	nid.uCallbackMessage = WM_TASKBARICON_0;
 	wcscpy_s(nid.szTip, title);
-	if(!Shell_NotifyIconW(NIM_ADD, &nid))
+	if (!Shell_NotifyIconW(NIM_ADD, &nid))
 	{
 		Sleep(100);
 	}
@@ -158,25 +152,25 @@ void init_server()
 		googlecgiapi_url_prefix, _countof(googlecgiapi_url_prefix), ini);
 	GetPrivateProfileStringW(title, inikey_googlecgiapi_url_suffix, inival_def_googlecgiapi_url_suffix,
 		googlecgiapi_url_suffix, _countof(googlecgiapi_url_suffix), ini);
-	
+
 	GetPrivateProfileStringW(title, inikey_port, L"", serv_port, _countof(serv_port), ini);
 	serv_loopback = GetPrivateProfileIntW(title, inikey_loopback, 1, ini);
 
-	for(i=1; i<=MAX_DICNUM; i++)
+	for (i = 1; i <= MAX_DICNUM; i++)
 	{
 		_snwprintf_s(key, _TRUNCATE, L"%s%d", inikey_dic, i);
 		GetPrivateProfileStringW(title, key, L"", dicpath, _countof(dicpath), ini);
-		if(dicpath[0] != L'\0')
+		if (dicpath[0] != L'\0')
 		{
 			dicinfo.path = dicpath;
 			dicinfo.pos.clear();
 			dicinfo.pos.shrink_to_fit();
 			dicinfo.sock = INVALID_SOCKET;
-			if(wcsncmp(dicpath, INIVAL_SKKSERV, wcslen(INIVAL_SKKSERV)) == 0)
+			if (wcsncmp(dicpath, INIVAL_SKKSERV, wcslen(INIVAL_SKKSERV)) == 0)
 			{
 				connect_skkserv(dicinfo);
 			}
-			else if(wcsncmp(dicpath, INIVAL_GOOGLECGIAPI, wcslen(INIVAL_GOOGLECGIAPI)) == 0)
+			else if (wcsncmp(dicpath, INIVAL_GOOGLECGIAPI, wcslen(INIVAL_GOOGLECGIAPI)) == 0)
 			{
 			}
 			else
@@ -187,12 +181,12 @@ void init_server()
 		}
 	}
 
-	if(serv_port[0] == L'\0')
+	if (serv_port[0] == L'\0')
 	{
 		return;
 	}
 
-	for(i=0; i<FD_SETSIZE; i++)
+	for (i = 0; i < FD_SETSIZE; i++)
 	{
 		servinfo[i].live = FALSE;
 		servinfo[i].sock = INVALID_SOCKET;
@@ -200,7 +194,7 @@ void init_server()
 
 	servinfonum = make_serv_sock(servinfo, _countof(servinfo));
 
-	for(i=0; i<servinfonum; i++)
+	for (i = 0; i < servinfonum; i++)
 	{
 		_beginthread(listen_thread, 0, &servinfo[i]);
 	}
@@ -211,19 +205,19 @@ void term_server()
 	int i;
 	VDICINFO::iterator vdicinfo_itr;
 
-	for(i=0; i<servinfonum; i++)
+	for (i = 0; i < servinfonum; i++)
 	{
 		disconnect(servinfo[i].sock);
 	}
-	for(i=0; i<servinfonum; i++)
+	for (i = 0; i < servinfonum; i++)
 	{
-		while(servinfo[i].live)
+		while (servinfo[i].live)
 		{
 			Sleep(10);
 		}
 	}
 
-	for(vdicinfo_itr = vdicinfo.begin(); vdicinfo_itr != vdicinfo.end(); vdicinfo_itr++)
+	for (vdicinfo_itr = vdicinfo.begin(); vdicinfo_itr != vdicinfo.end(); vdicinfo_itr++)
 	{
 		disconnect(vdicinfo_itr->sock);
 	}
@@ -241,7 +235,7 @@ INT_PTR CALLBACK DlgProcSKKServ(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	WCHAR port[6];
 	WCHAR timeout[8];
 
-	switch(message)
+	switch (message)
 	{
 	case WM_INITDIALOG:
 		hPDlg = (HWND)lParam;
@@ -252,7 +246,7 @@ INT_PTR CALLBACK DlgProcSKKServ(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:
-		switch(LOWORD(wParam))
+		switch (LOWORD(wParam))
 		{
 		case IDOK:
 			GetDlgItemTextW(hDlg, IDC_EDIT_SKKSRV_HOST, host, _countof(host));
@@ -264,7 +258,7 @@ INT_PTR CALLBACK DlgProcSKKServ(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			hWndListView = GetDlgItem(hPDlg, IDC_LIST_SKK_DIC);
 			index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
 			count = ListView_GetItemCount(hWndListView);
-			if(index == -1)
+			if (index == -1)
 			{
 				index = count;
 			}
@@ -281,7 +275,7 @@ INT_PTR CALLBACK DlgProcSKKServ(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 			ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
 			ListView_EnsureVisible(hWndListView, index, FALSE);
 
-			if(ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
+			if (ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
 			{
 				EnableWindow(GetDlgItem(hPDlg, IDC_BUTTON_SKK_DIC_ADD), FALSE);
 				EnableWindow(GetDlgItem(hPDlg, IDC_BUTTON_SKKSERV_ADD), FALSE);
@@ -324,7 +318,7 @@ INT_PTR CALLBACK DlgProcGoogleCGIAPI(HWND hDlg, UINT message, WPARAM wParam, LPA
 	WCHAR comment[256];
 	WCHAR timeout[8];
 
-	switch(message)
+	switch (message)
 	{
 	case WM_INITDIALOG:
 		hPDlg = (HWND)lParam;
@@ -337,19 +331,19 @@ INT_PTR CALLBACK DlgProcGoogleCGIAPI(HWND hDlg, UINT message, WPARAM wParam, LPA
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:
-		switch(LOWORD(wParam))
+		switch (LOWORD(wParam))
 		{
 		case IDOK:
 			wcscpy_s(encoding, inival_googlecgiapi_encoding_euc);
-			if(IsDlgButtonChecked(hDlg, IDC_RADIO_GOOGLECGIAPI_UTF8) == BST_CHECKED)
+			if (IsDlgButtonChecked(hDlg, IDC_RADIO_GOOGLECGIAPI_UTF8) == BST_CHECKED)
 			{
 				wcscpy_s(encoding, inival_googlecgiapi_encoding_utf8);
 			}
 			GetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_FILTER, filter, _countof(filter));
 			GetDlgItemTextW(hDlg, IDC_EDIT_GOOGLECGIAPI_ANNOTATION, comment, _countof(comment));
-			for(index = 0; index < _countof(comment) && comment[index] != L'\0'; index++)
+			for (index = 0; index < _countof(comment) && comment[index] != L'\0'; index++)
 			{
-				if(comment[index] == L'/' || comment[index] == L';')
+				if (comment[index] == L'/' || comment[index] == L';')
 				{
 					comment[index] = L'\x20';
 				}
@@ -361,7 +355,7 @@ INT_PTR CALLBACK DlgProcGoogleCGIAPI(HWND hDlg, UINT message, WPARAM wParam, LPA
 			hWndListView = GetDlgItem(hPDlg, IDC_LIST_SKK_DIC);
 			index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
 			count = ListView_GetItemCount(hWndListView);
-			if(index == -1)
+			if (index == -1)
 			{
 				index = count;
 			}
@@ -378,7 +372,7 @@ INT_PTR CALLBACK DlgProcGoogleCGIAPI(HWND hDlg, UINT message, WPARAM wParam, LPA
 			ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
 			ListView_EnsureVisible(hWndListView, index, FALSE);
 
-			if(ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
+			if (ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
 			{
 				EnableWindow(GetDlgItem(hPDlg, IDC_BUTTON_SKK_DIC_ADD), FALSE);
 				EnableWindow(GetDlgItem(hPDlg, IDC_BUTTON_SKKSERV_ADD), FALSE);
@@ -422,12 +416,12 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 	WCHAR key[8];
 	FILE *fp;
 
-	switch(message)
+	switch (message)
 	{
 	case WM_INITDIALOG:
 		SetForegroundWindow(hDlg);
 
-		if(serv_port[0] == L'\0')
+		if (serv_port[0] == L'\0')
 		{
 			wcscpy_s(serv_port, inival_def_port);
 		}
@@ -446,7 +440,7 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 		ListView_InsertColumn(hWndListView, 0, &lvc);
 
 		index = 0;
-		for(vdicinfo_itr = vdicinfo.begin(); vdicinfo_itr != vdicinfo.end(); vdicinfo_itr++)
+		for (vdicinfo_itr = vdicinfo.begin(); vdicinfo_itr != vdicinfo.end(); vdicinfo_itr++)
 		{
 			item.mask = LVIF_TEXT;
 			item.pszText = (LPWSTR)vdicinfo_itr->path.c_str();
@@ -458,7 +452,7 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 
 		ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
 
-		if(ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
+		if (ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
 		{
 			EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKK_DIC_ADD), FALSE);
 			EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKKSERV_ADD), FALSE);
@@ -474,11 +468,11 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 	case WM_COMMAND:
 		hWndListView = GetDlgItem(hDlg, IDC_LIST_SKK_DIC);
 
-		switch(LOWORD(wParam))
+		switch (LOWORD(wParam))
 		{
 		case IDOK:
 			_wfopen_s(&fp, ini, modeWB);
-			if(fp != nullptr)
+			if (fp != nullptr)
 			{
 				fwrite("\xFF\xFE", 2, 1, fp);
 				fclose(fp);
@@ -496,7 +490,7 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 			WritePrivateProfileStringW(title, inikey_googlecgiapi_url_suffix, googlecgiapi_url_suffix, ini);
 
 			count = ListView_GetItemCount(hWndListView);
-			for(index=0; index<MAX_DICNUM && index<count; index++)
+			for (index = 0; index < MAX_DICNUM && index < count; index++)
 			{
 				_snwprintf_s(key, _TRUNCATE, L"%s%d", inikey_dic, index + 1);
 				ListView_GetItemText(hWndListView, index, 0, path, _countof(path));
@@ -514,7 +508,7 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 
 		case IDC_BUTTON_SKK_DIC_UP:
 			index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
-			if(index > 0)
+			if (index > 0)
 			{
 				ListView_GetItemText(hWndListView, index - 1, 0, pathBak, _countof(pathBak));
 				ListView_GetItemText(hWndListView, index, 0, path, _countof(path));
@@ -528,7 +522,7 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 		case IDC_BUTTON_SKK_DIC_DOWN:
 			index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
 			count = ListView_GetItemCount(hWndListView);
-			if(index >= 0 && index < count - 1)
+			if (index >= 0 && index < count - 1)
 			{
 				ListView_GetItemText(hWndListView, index + 1, 0, pathBak, _countof(pathBak));
 				ListView_GetItemText(hWndListView, index, 0, path, _countof(path));
@@ -548,11 +542,11 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 			ofn.nMaxFile = MAX_PATH;
 			ofn.lpstrTitle = L"ファイル追加";
 			ofn.Flags = OFN_FILEMUSTEXIST;
-			if(GetOpenFileNameW(&ofn) != 0)
+			if (GetOpenFileNameW(&ofn) != 0)
 			{
 				index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
 				count = ListView_GetItemCount(hWndListView);
-				if(index == -1)
+				if (index == -1)
 				{
 					index = count;
 				}
@@ -569,7 +563,7 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 				ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
 				ListView_EnsureVisible(hWndListView, index, FALSE);
 
-				if(ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
+				if (ListView_GetItemCount(hWndListView) >= MAX_DICNUM)
 				{
 					EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKK_DIC_ADD), FALSE);
 					EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKKSERV_ADD), FALSE);
@@ -588,12 +582,12 @@ INT_PTR CALLBACK DlgProcConfig(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 
 		case IDC_BUTTON_SKK_DIC_DEL:
 			index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
-			if(index != -1)
+			if (index != -1)
 			{
 				ListView_DeleteItem(hWndListView, index);
 				ListView_SetColumnWidth(hWndListView, 0, LVSCW_AUTOSIZE);
 
-				if(ListView_GetItemCount(hWndListView) < MAX_DICNUM)
+				if (ListView_GetItemCount(hWndListView) < MAX_DICNUM)
 				{
 					EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKK_DIC_ADD), TRUE);
 					EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_SKKSERV_ADD), TRUE);
@@ -626,7 +620,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	HMENU hSubMenu;
 	POINT pt;
 
-	switch(message)
+	switch (message)
 	{
 	case WM_CREATE:
 		s_uTaskbarRestart = RegisterWindowMessageW(L"TaskbarCreated");
@@ -635,10 +629,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_COMMAND:
-		switch(LOWORD(wParam))
+		switch (LOWORD(wParam))
 		{
 		case IDM_CONFIG:
-			if(!bDlgShowed)
+			if (!bDlgShowed)
 			{
 				bDlgShowed = TRUE;
 				DialogBoxW(hInst, MAKEINTRESOURCE(IDD_DIALOG_CONFIG), hWnd, DlgProcConfig);
@@ -658,10 +652,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_TASKBARICON_0:
-		switch(lParam)
+		switch (lParam)
 		{
 		case WM_LBUTTONDOWN:
-			if(!bDlgShowed)
+			if (!bDlgShowed)
 			{
 				bDlgShowed = TRUE;
 				DialogBoxW(hInst, MAKEINTRESOURCE(IDD_DIALOG_CONFIG), hWnd, DlgProcConfig);
@@ -674,12 +668,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_RBUTTONDOWN:
 			hMenu = LoadMenuW(hInst, MAKEINTRESOURCE(IDR_MENU));
-			if(hMenu)
+			if (hMenu)
 			{
 				GetCursorPos(&pt);
 				SetForegroundWindow(hWnd);
 				hSubMenu = GetSubMenu(hMenu, 0);
-				if(hSubMenu)
+				if (hSubMenu)
 				{
 					TrackPopupMenu(hSubMenu, TPM_LEFTALIGN | TPM_BOTTOMALIGN | TPM_RIGHTBUTTON,
 						pt.x, pt.y, 0, hWnd, nullptr);
@@ -696,11 +690,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_ENDSESSION:
 		Shell_NotifyIconW(NIM_DELETE, &nid);
 		term_server();
-		PostQuitMessage(0);
 		break;
 
 	default:
-		if(message == s_uTaskbarRestart)
+		if (message == s_uTaskbarRestart)
 		{
 			AddTaskbarIcon(hWnd);
 		}
