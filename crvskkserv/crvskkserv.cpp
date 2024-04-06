@@ -687,10 +687,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_DESTROY:
-	case WM_ENDSESSION:
 		Shell_NotifyIconW(NIM_DELETE, &nid);
 		term_server();
-		break;
+		PostQuitMessage(0);
+		return 0;
 
 	default:
 		if (message == s_uTaskbarRestart)
